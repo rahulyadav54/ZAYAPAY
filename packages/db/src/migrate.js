@@ -112,14 +112,14 @@ export function runMigrations(targetDb) {
   if (existing.length === 0) {
     defaultMerchant = merchantRepo.create({
       id: '00000000-0000-0000-0000-000000000001',
-      businessName: 'YOUPI Demo Store',
+      businessName: 'ZAYA CODE HUB',
       slug: 'demo-store',
-      contactEmail: 'merchant@youpi.local',
+      contactEmail: 'merchant@zayapay.local',
       contactPhone: '9876543210',
       webhookUrl: process.env.COIN_STORE_WEBHOOK_URL || 'http://localhost:5000/api/webhook',
       webhookSecret: process.env.COIN_STORE_WEBHOOK_SECRET || 'merchant_webhook_secret_for_wallet_store',
       branding: {
-        appName: 'YOUPI PG',
+        appName: 'ZAYAPAY',
         primaryColor: '#2563eb',
         logoUrl: null
       }
@@ -141,8 +141,8 @@ export function runMigrations(targetDb) {
     accountRepo.create({
       id: '00000000-0000-0000-0000-000000000002',
       merchantId: defaultMerchant.id,
-      upiId: 'merchant@upi',
-      payeeName: defaultMerchant.businessName,
+      upiId: 'zayacodehub@okhdfcbank',
+      payeeName: 'ZAYA CODE HUB',
       isActive: true
     });
   }

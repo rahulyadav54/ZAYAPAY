@@ -9,10 +9,10 @@
    ╚═╝    ╚═════╝  ╚═════╝ ╚═╝     ╚═╝    ╚═╝      ╚═════╝ 
 ```
 
-# ⚡ YOUPI PG V2
+# ⚡ ZAYAPAY
 
-### The Sovereign, Self-Hosted UPI Payment Gateway for Independent Merchants
-**0% Gateway Fees • Direct-to-Bank Settlement • WhatsApp Pre-Checkout OTP • Bank SMS & Gmail Observers**
+### Sovereign, Self-Hosted UPI Payment Gateway with Supabase Cloud Sync & Vercel Deployment
+**0% Gateway Fees • Direct-to-Bank Settlement (`zayacodehub@okhdfcbank`) • WhatsApp Pre-Checkout OTP • Bank Observers**
 
 <br/>
 

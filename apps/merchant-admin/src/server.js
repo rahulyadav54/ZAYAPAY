@@ -27,6 +27,7 @@ export class AdminServer {
   constructor(options = {}) {
     this.db = options.db || getDatabase();
     this.apiBaseUrl = options.apiBaseUrl || process.env.BASE_PAYMENT_API_URL || 'http://localhost:6100';
+    this.apiHandler = options.apiHandler || null;
     this.merchantRepo = new MerchantRepository(this.db);
     this.ticketRepo = new SupportTicketRepository(this.db);
     this.htmlTemplatePath = path.join(__dirname, 'views', 'admin.html');
@@ -114,6 +115,9 @@ export class AdminServer {
 
       // Transparent API Proxy: /api/* -> Payment Core REST API
       if (pathname.startsWith('/api/')) {
+        if (typeof this.apiHandler === 'function') {
+          return this.apiHandler(req, res);
+        }
         const targetPort = Number(process.env.PAYMENT_API_PORT || 6100);
         const defaultMerchant = this.merchantRepo.getDefault ? this.merchantRepo.getDefault() : (this.merchantRepo.findById('00000000-0000-0000-0000-000000000001') || this.merchantRepo.findAll()[0]);
         const defaultMerchantId = defaultMerchant?.id || '00000000-0000-0000-0000-000000000001';

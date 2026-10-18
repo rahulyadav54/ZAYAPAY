@@ -1,0 +1,6 @@
+.git
+node_modules
+data/*.sqlite*
+apps/android-observer-app/build
+apps/android-observer-app/.gradle
+*.log

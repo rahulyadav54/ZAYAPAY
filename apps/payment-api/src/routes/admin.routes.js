@@ -651,7 +651,7 @@ export function registerAdminRoutes(server, ctx) {
       privacyPolicyUrl,
       sellingMode,
       branding: {
-        appName: branding.appName || 'YOUPI PG',
+        appName: branding.appName || process.env.DEFAULT_APP_NAME || 'ZAYAPAY',
         primaryColor: branding.primaryColor || '#2563eb',
         headerTheme: branding.headerTheme || 'gradient',
         logoUrl: branding.logoUrl || null,
@@ -662,7 +662,7 @@ export function registerAdminRoutes(server, ctx) {
         hideSubbanner: Boolean(branding.hideSubbanner),
         hidePoweredBy: Boolean(branding.hidePoweredBy),
         hideTimeSavingBanner: Boolean(branding.hideTimeSavingBanner),
-        footerGuarantee: branding.footerGuarantee || 'Secured by YOUPI PG 256-Bit Encryption',
+        footerGuarantee: branding.footerGuarantee || 'Secured by ZAYAPAY 256-Bit Encryption',
         counterInstructions: branding.counterInstructions || 'Please visit the store billing counter and present this screen to the cashier.',
         cardCounterInstructions: branding.cardCounterInstructions || 'Please swipe, insert, or tap your credit or debit card on the store POS terminal at the billing desk.',
         termsUrl: branding.termsUrl || null,
@@ -711,7 +711,7 @@ export function registerAdminRoutes(server, ctx) {
     const inputBranding = body.branding || {};
     const mergedBranding = { ...currentBranding };
 
-    if (inputBranding.appName !== undefined) mergedBranding.appName = inputBranding.appName.trim() || currentBranding.appName || 'YOUPI PG';
+    if (inputBranding.appName !== undefined) mergedBranding.appName = inputBranding.appName.trim() || currentBranding.appName || process.env.DEFAULT_APP_NAME || 'ZAYAPAY';
     if (inputBranding.logoUrl !== undefined) mergedBranding.logoUrl = inputBranding.logoUrl ? inputBranding.logoUrl.trim() : null;
     if (inputBranding.primaryColor !== undefined) mergedBranding.primaryColor = inputBranding.primaryColor.trim() || currentBranding.primaryColor || '#2563eb';
     if (inputBranding.sidebarNotice !== undefined) mergedBranding.sidebarNotice = inputBranding.sidebarNotice ? inputBranding.sidebarNotice.trim() : null;
@@ -922,7 +922,7 @@ export function registerAdminRoutes(server, ctx) {
       const currentBranding = merchant.branding || {};
       const mergedBranding = { ...currentBranding };
 
-      if (inputBranding.appName !== undefined) mergedBranding.appName = inputBranding.appName.trim() || currentBranding.appName || 'YOUPI PG';
+      if (inputBranding.appName !== undefined) mergedBranding.appName = inputBranding.appName.trim() || currentBranding.appName || process.env.DEFAULT_APP_NAME || 'ZAYAPAY';
       if (inputBranding.logoUrl !== undefined) mergedBranding.logoUrl = inputBranding.logoUrl ? inputBranding.logoUrl.trim() : null;
       if (inputBranding.primaryColor !== undefined) mergedBranding.primaryColor = inputBranding.primaryColor.trim() || currentBranding.primaryColor || '#2563eb';
       if (inputBranding.headerTheme !== undefined) mergedBranding.headerTheme = inputBranding.headerTheme || 'gradient';

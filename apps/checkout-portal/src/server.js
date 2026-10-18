@@ -40,12 +40,20 @@ export class CheckoutServer {
     } catch {}
 
     this.apiBaseUrl = options.apiBaseUrl || process.env.BASE_PAYMENT_API_URL || 'http://localhost:6100';
+    this.stateFetcher = options.stateFetcher || null;
+    this.apiHandler = options.apiHandler || null;
     this.htmlTemplatePath = path.join(__dirname, 'views', 'checkout.html');
     this.sdkScriptPath = path.join(__dirname, 'sdk', 'youpi-checkout.js');
     this.template = fs.readFileSync(this.htmlTemplatePath, 'utf8');
   }
 
   async fetchPaymentState(paymentId) {
+    if (typeof this.stateFetcher === 'function') {
+      try {
+        const state = await this.stateFetcher(paymentId);
+        if (state) return state;
+      } catch {}
+    }
     try {
       const internalPort = process.env.PAYMENT_API_PORT || 6100;
       const res = await fetch(`http://127.0.0.1:${internalPort}/api/v1/checkout/${paymentId}/state`, {
@@ -65,14 +73,14 @@ export class CheckoutServer {
 
     let html = this.template;
 
-    const appName = state?.branding?.appName || 'YouPI PG';
+    const appName = state?.branding?.appName || process.env.DEFAULT_APP_NAME || 'ZAYAPAY';
     const primaryColor = state?.branding?.primaryColor || '#0b63e5';
-    const merchantName = state?.merchantName || 'Merchant Checkout';
+    const merchantName = state?.merchantName || 'ZAYA CODE HUB';
     const orderId = state?.orderId || '';
     const logoUrl = state?.branding?.logoUrl || '';
     const sidebarNotice = state?.branding?.sidebarNotice || 'Fast & Secure 256-Bit Encrypted Payments';
     const counterInstructions = state?.branding?.counterInstructions || 'Please visit the billing counter and present this screen to the cashier.';
-    const vpa = state?.payeeVpa || state?.vpa || 'merchant@upi';
+    const vpa = state?.payeeVpa || state?.vpa || 'zayacodehub@okhdfcbank';
 
     // In production and localhost, use relative '' so browser requests hit the checkout portal /api proxy
     // This avoids cross-origin blocking, CORS errors, and tunnel DNS resolution issues.
@@ -128,7 +136,7 @@ export class CheckoutServer {
     html = html.replaceAll('{{PC_CARD_STYLE}}', pcCardStyle);
     html = html.replaceAll('{{DOWNTIME_ALT_BTN_DISPLAY}}', downtimeAltBtnDisplay);
     html = html.replaceAll('{{DOWNTIME_ALT_BTN_LABEL}}', downtimeAltBtnLabel);
-    html = html.replaceAll('{{INITIAL_STATE_JSON}}', JSON.stringify(state || {}).replaceAll('<', '\\u003c'));
+    html = html.replaceAll('{{INITIAL_STATE_JSON}}', JSON.stringify(state || {}, (key, val) => typeof val === 'bigint' ? val.toString() : val).replaceAll('<', '\\u003c'));
 
     return html;
   }
@@ -147,6 +155,9 @@ export class CheckoutServer {
 
       // Transparent API Proxy: /api/* -> Payment Core REST API
       if (pathname.startsWith('/api/')) {
+        if (typeof this.apiHandler === 'function') {
+          return this.apiHandler(req, res);
+        }
         const targetPort = Number(process.env.PAYMENT_API_PORT || 6100);
         const proxyReq = http.request({
           hostname: '127.0.0.1',
@@ -219,7 +230,7 @@ export class CheckoutServer {
       if (qrMatch) {
         const paymentId = qrMatch[1];
         const state = await this.fetchPaymentState(paymentId);
-        const upiUri = state?.upiUri || `upi://pay?pa=${encodeURIComponent(state?.payeeVpa || 'merchant@upi')}&pn=${encodeURIComponent(state?.merchantName || 'Store')}&am=${encodeURIComponent(state?.amount || '100.00')}&tn=${encodeURIComponent(paymentId)}`;
+        const upiUri = state?.upiUri || `upi://pay?pa=${encodeURIComponent(state?.payeeVpa || 'zayacodehub@okhdfcbank')}&pn=${encodeURIComponent(state?.merchantName || 'ZAYA CODE HUB')}&am=${encodeURIComponent(state?.amount || '100.00')}&tn=${encodeURIComponent(paymentId)}`;
 
         const svg = generateQrSvg(upiUri, 220);
         res.writeHead(200, {

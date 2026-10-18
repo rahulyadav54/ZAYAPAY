@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS merchants (
     contact_phone VARCHAR(20) NOT NULL,
     webhook_url VARCHAR(1024),
     webhook_secret VARCHAR(255) NOT NULL,
-    branding TEXT NOT NULL DEFAULT '{"primaryColor":"#2563eb","appName":"YOUPI PG","logoUrl":null}',
+    branding TEXT NOT NULL DEFAULT '{"primaryColor":"#2563eb","appName":"ZAYAPAY","logoUrl":null}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -68,6 +68,28 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_token ON customer_sessions (token, is_active);
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_customer ON customer_sessions (customer_id);
 
+-- 3c. Devices Table (Cryptographic Device Binding & Hardware Context Fingerprinting)
+CREATE TABLE IF NOT EXISTS devices (
+    id TEXT PRIMARY KEY,
+    customer_id TEXT REFERENCES customers(id) ON DELETE SET NULL,
+    public_key TEXT NOT NULL,
+    fingerprint_hash VARCHAR(64) NOT NULL,
+    user_agent TEXT,
+    platform VARCHAR(100),
+    browser VARCHAR(100),
+    timezone VARCHAR(100),
+    language VARCHAR(50),
+    screen_signature VARCHAR(100),
+    device_token VARCHAR(255) UNIQUE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_devices_customer ON devices (customer_id);
+CREATE INDEX IF NOT EXISTS idx_devices_fingerprint ON devices (fingerprint_hash);
+CREATE INDEX IF NOT EXISTS idx_devices_token ON devices (device_token);
+
 -- 4. Payment Sessions Table
 CREATE TABLE IF NOT EXISTS payment_sessions (
     id TEXT PRIMARY KEY,
@@ -99,6 +121,7 @@ CREATE TABLE IF NOT EXISTS payment_sessions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_payment_sessions_active ON payment_sessions (receiving_account_id, status);
+CREATE INDEX IF NOT EXISTS idx_payment_sessions_device ON payment_sessions (device_id);
 
 -- 5. Payment Observations Table
 CREATE TABLE IF NOT EXISTS payment_observations (
@@ -205,26 +228,4 @@ CREATE TABLE IF NOT EXISTS security_events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 11. Devices Table (Cryptographic Device Binding & Hardware Context Fingerprinting)
-CREATE TABLE IF NOT EXISTS devices (
-    id TEXT PRIMARY KEY,
-    customer_id TEXT REFERENCES customers(id) ON DELETE SET NULL,
-    public_key TEXT NOT NULL,
-    fingerprint_hash VARCHAR(64) NOT NULL,
-    user_agent TEXT,
-    platform VARCHAR(100),
-    browser VARCHAR(100),
-    timezone VARCHAR(100),
-    language VARCHAR(50),
-    screen_signature VARCHAR(100),
-    device_token VARCHAR(255) UNIQUE,
-    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_devices_customer ON devices (customer_id);
-CREATE INDEX IF NOT EXISTS idx_devices_fingerprint ON devices (fingerprint_hash);
-CREATE INDEX IF NOT EXISTS idx_devices_token ON devices (device_token);
-CREATE INDEX IF NOT EXISTS idx_payment_sessions_device ON payment_sessions (device_id);
 

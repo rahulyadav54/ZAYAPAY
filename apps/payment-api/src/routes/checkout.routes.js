@@ -367,7 +367,7 @@ export function registerCheckoutRoutes(server, ctx) {
     if ([PaymentStatus.SUCCESS, PaymentStatus.FAILED, PaymentStatus.EXPIRED, PaymentStatus.CANCELLED].includes(session.status)) {
       const merchant = ctx.merchantRepo.findById(session.merchantId);
       const branding = {
-        appName: 'YOUPI PG',
+        appName: process.env.DEFAULT_APP_NAME || 'ZAYAPAY',
         primaryColor: '#2563eb',
         ...(merchant?.branding || {})
       };
@@ -441,7 +441,7 @@ export function registerCheckoutRoutes(server, ctx) {
     }
 
     const branding = {
-      appName: 'YOUPI PG',
+      appName: process.env.DEFAULT_APP_NAME || 'ZAYAPAY',
       primaryColor: '#2563eb',
       headerTheme: 'gradient',
       logoUrl: null,

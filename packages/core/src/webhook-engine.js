@@ -30,6 +30,9 @@ export class WebhookEngine {
 
     const publicOutcome = isTerminalStatus(event) ? toPublicOutcome(event) : event;
 
+    // Real-time Supabase Cloud Sync (if SUPABASE_URL configured)
+    this.syncToSupabase(session, publicOutcome).catch(() => {});
+
     const payloadObj = {
       event: publicOutcome,
       paymentId: session.id,
@@ -171,4 +174,46 @@ export class WebhookEngine {
 
     return results;
   }
+
+  /**
+   * Real-time sync of payment session to Supabase database.
+   * @param {any} session
+   * @param {string} publicOutcome
+   */
+  async syncToSupabase(session, publicOutcome) {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) return;
+
+    try {
+      const payload = {
+        id: session.id,
+        merchant_id: session.merchantId,
+        customer_id: session.customerId || null,
+        receiving_account_id: session.receivingAccountId || null,
+        order_id: session.orderId,
+        amount_paise: Number(session.amountPaise),
+        currency: session.currency || 'INR',
+        method: session.method || 'UPI',
+        status: publicOutcome || session.status,
+        queue_position: session.queuePosition || 0,
+        metadata: typeof session.metadata === 'object' ? JSON.stringify(session.metadata) : (session.metadata || '{}')
+      };
+
+      await fetch(`${supabaseUrl}/rest/v1/payment_sessions`, {
+        method: 'POST',
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000)
+      });
+    } catch (err) {
+      // Non-blocking sync error
+    }
+  }
 }
+

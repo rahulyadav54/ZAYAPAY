@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>YOUPI Store · Enterprise Payment Gateway Suite</title>
+  <title>ZAYAPAY Store · Enterprise Payment Gateway Suite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- OFFICIAL YOUPI PG UNIVERSAL INTEGRATION SCRIPT -->
@@ -963,7 +963,7 @@
 
   <!-- TOP ANNOUNCEMENT BAR -->
   <div class="top-announcement">
-    <span>✨ <strong>YOUPI Gateway</strong> Demo Powered by YOUPI PG</span>
+    <span>✨ <strong>ZAYAPAY Gateway</strong> Demo Powered by ZAYAPAY</span>
     <span style="opacity:0.4;">|</span>
     <span>Zero Platform Fees · Direct P2P UPI Settlement</span>
   </div>
@@ -974,7 +974,7 @@
       <a href="/" class="brand-group">
         <div class="brand-logo-badge">⚡</div>
         <div class="brand-text">
-          <span class="brand-title">YOUPI Store</span>
+          <span class="brand-title">ZAYAPAY Store</span>
           <span class="brand-subtitle">Official Payment Gateway Demo</span>
         </div>
       </a>
@@ -1024,7 +1024,7 @@
       <!-- RIGHT COLUMN: PRODUCT BUY BOX FIRST (PRIORITIZED DEMO), THEN CONTENT BELOW IT -->
       <div class="details-column">
         <div class="product-header-block">
-          <h1 class="product-h1">YOUPI PG — Small Scale Self-Hosted UPI Payment Gateway</h1>
+          <h1 class="product-h1">ZAYAPAY — Self-Hosted UPI Payment Gateway</h1>
           <p style="color:var(--text-muted); font-size:0.92rem; margin-top:0.35rem; font-weight:600;">
             Direct-to-bank sovereign settlement. Test live checkout with zero intermediary fees.
           </p>
@@ -1073,15 +1073,15 @@
                   data-order-id=""
                   data-amount="1.00"
                   data-currency="INR"
-                  data-name="YOUPI Store"
-                  data-description="YOUPI PG Enterprise Suite Top-Up"
+                  data-name="ZAYAPAY Store"
+                  data-description="ZAYAPAY Enterprise Suite Top-Up"
                   data-success-url="/order-success"
                   data-failed-url="/order-failed"
                   data-suspicious-url="/order-suspicious"
                   data-expired-url="/order-expired"
                   data-cancelled-url="/order-cancelled"
                   onclick="startGatewayPurchase()">
-            <span>⚡ Buy Now with YOUPI PG · <span id="btnAmountDisplay">₹1.00</span></span>
+            <span>⚡ Buy Now with ZAYAPAY · <span id="btnAmountDisplay">₹1.00</span></span>
           </button>
 
           <div class="security-guarantee-note">
@@ -1784,8 +1784,8 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
           order_id: data.orderId,
           amount: currentAmount,
           currency: 'INR',
-          name: 'YOUPI Store',
-          description: 'YOUPI PG Enterprise Suite Top-Up',
+          name: 'ZAYAPAY Store',
+          description: 'ZAYAPAY Enterprise Suite Top-Up',
           successUrl: `/order-success?order_id=${encodeURIComponent(data.orderId)}&amount=${encodeURIComponent(currentAmount)}`,
           failedUrl: `/order-failed?order_id=${encodeURIComponent(data.orderId)}`,
           suspiciousUrl: `/order-suspicious?order_id=${encodeURIComponent(data.orderId)}`,
