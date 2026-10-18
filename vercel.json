@@ -1,13 +1,24 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "outputDirectory": "public",
   "functions": {
     "api/index.js": {
-      "includeFiles": "apps/**,packages/**",
+      "includeFiles": "apps/**,packages/**,public/**",
       "maxDuration": 15
     }
   },
   "rewrites": [
+    { "source": "/order-success(.*)", "destination": "/api/index.js" },
+    { "source": "/order-failed(.*)", "destination": "/api/index.js" },
+    { "source": "/order-cancelled(.*)", "destination": "/api/index.js" },
+    { "source": "/order-expired(.*)", "destination": "/api/index.js" },
+    { "source": "/order-suspicious(.*)", "destination": "/api/index.js" },
+    { "source": "/youpi.js", "destination": "/api/index.js" },
+    { "source": "/youpi-checkout.js", "destination": "/api/index.js" },
+    { "source": "/sdk/(.*)", "destination": "/api/index.js" },
+    { "source": "/wallet(.*)", "destination": "/api/index.js" },
+    { "source": "/store(.*)", "destination": "/api/index.js" },
     { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/checkout/(.*)", "destination": "/api/index.js" },
     { "source": "/admin(.*)", "destination": "/api/index.js" },

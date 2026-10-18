@@ -38,7 +38,11 @@
       scriptUrl = new URL(script.src, window.location.href);
     } catch (e) { }
 
-    const origin = scriptUrl ? scriptUrl.origin : (window.location.protocol + '//' + window.location.hostname + ':7000');
+    let defaultOrigin = isBrowser ? window.location.origin : 'http://localhost:7000';
+    if (isBrowser && (window.location.port === '5000' || window.location.port === '5001')) {
+      defaultOrigin = 'http://localhost:7000';
+    }
+    const origin = (scriptUrl && scriptUrl.origin && scriptUrl.origin !== 'null') ? scriptUrl.origin : defaultOrigin;
 
     return {
       key: script.getAttribute('data-youpi-key') || script.getAttribute('data-key') || script.getAttribute('data-merchant-id') || '',
@@ -93,13 +97,13 @@
      * }} options
      */
     constructor(options = {}) {
-      const defaultPortal = isBrowser
-        ? (scriptConfig.portalUrl || (window.location.protocol + '//' + window.location.hostname + ':7000'))
-        : 'http://localhost:7000';
+      let defaultPortalOrigin = isBrowser ? window.location.origin : 'http://localhost:7000';
+      if (isBrowser && (window.location.port === '5000' || window.location.port === '5001')) {
+        defaultPortalOrigin = 'http://localhost:7000';
+      }
+      const defaultPortal = scriptConfig.portalUrl || defaultPortalOrigin;
 
-      const defaultApi = isBrowser
-        ? (scriptConfig.apiUrl || defaultPortal)
-        : 'http://localhost:6100';
+      const defaultApi = scriptConfig.apiUrl || defaultPortal;
 
       this.options = Object.assign({
         key: scriptConfig.key || '',
@@ -259,6 +263,14 @@
           try {
             const parsed = new URL(targetUrl);
             targetUrl = `${window.location.protocol}//${window.location.host}${parsed.pathname}${parsed.search}`;
+          } catch {}
+        }
+      } else if (isBrowser) {
+        // When deployed on Vercel or any remote domain, never load localhost
+        if (targetUrl.startsWith('http://localhost') || targetUrl.startsWith('http://127.0.0.1')) {
+          try {
+            const parsed = new URL(targetUrl);
+            targetUrl = `${window.location.origin}${parsed.pathname}${parsed.search}`;
           } catch {}
         }
       }
@@ -752,9 +764,16 @@
   // Export globals
   globalScope.YoupiCheckout = YoupiCheckout;
   globalScope.Youpi = YoupiCheckout;
+  globalScope.YouPI = YoupiCheckout;
+  globalScope.ZayaPayCheckout = YoupiCheckout;
+  globalScope.ZayaPay = YoupiCheckout;
+  globalScope.Zayapay = YoupiCheckout;
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = YoupiCheckout;
     module.exports.YoupiCheckout = YoupiCheckout;
     module.exports.Youpi = YoupiCheckout;
+    module.exports.YouPI = YoupiCheckout;
+    module.exports.ZayaPay = YoupiCheckout;
+    module.exports.Zayapay = YoupiCheckout;
   }
 })(typeof window !== 'undefined' ? window : globalThis);

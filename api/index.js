@@ -117,6 +117,23 @@ function initServices() {
   return services;
 }
 
+function readTemplate(filename) {
+  const candidates = [
+    path.resolve(rootDir, 'public', filename),
+    path.resolve(rootDir, 'apps/coin-wallet-store/src', filename),
+    path.resolve(rootDir, 'apps/checkout-portal/src/sdk', filename),
+    path.resolve(rootDir, 'apps/checkout-portal/src/views', filename)
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) {
+      try {
+        return fs.readFileSync(c, 'utf8');
+      } catch {}
+    }
+  }
+  return '';
+}
+
 export default async function handler(req, res) {
   const { app, context, dispatchApi, checkoutPortal, adminPortal, stateFetcher } = initServices();
 
@@ -142,24 +159,114 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 2. Demo Storefront: GET / and /wallet
+  // 2. Demo Storefront: GET / and /store
   if (pathname === '/' || pathname === '/store') {
-    const storeHtmlPath = path.resolve(rootDir, 'apps/coin-wallet-store/src/store.html');
-    let html = fs.readFileSync(storeHtmlPath, 'utf8');
+    let html = readTemplate('index.html') || readTemplate('store.html');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
     return;
   }
 
-  if (pathname === '/wallet') {
-    const walletHtmlPath = path.resolve(rootDir, 'apps/coin-wallet-store/src/wallet.html');
-    let html = fs.readFileSync(walletHtmlPath, 'utf8');
+  // 3. Customer Wallet: GET /wallet
+  if (pathname === '/wallet' || pathname === '/wallet.html') {
+    let html = readTemplate('wallet.html');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
     return;
   }
 
-  // 3. Store checkout creation: POST /api/checkout
+  // 4. Standardized Outcome Pages
+  // 4a. Success Outcome
+  if (pathname === '/order-success' || pathname === '/success' || pathname === '/order-success.html') {
+    let html = readTemplate('order-success.html');
+    const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-SUCCESS-TEST';
+    const amount = url.searchParams.get('amount') || '499.00';
+    const utr = url.searchParams.get('utr') || url.searchParams.get('bankRef') || '987654321012';
+    const mode = url.searchParams.get('mode') || url.searchParams.get('payment_mode') || 'UPI';
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    let rendered = html
+      .replaceAll('{{ORDER_ID}}', orderId)
+      .replaceAll('{{AMOUNT}}', amount)
+      .replaceAll('{{UTR}}', utr)
+      .replaceAll('{{MODE}}', mode)
+      .replaceAll('{{TIMESTAMP}}', timestamp);
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(rendered);
+    return;
+  }
+
+  // 4b. Failed Outcome
+  if (pathname === '/order-failed' || pathname === '/failed' || pathname === '/order-failed.html') {
+    let html = readTemplate('order-failed.html');
+    const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-FAILED-TEST';
+    const reason = url.searchParams.get('reason') || 'Transaction verification timed out or declined.';
+
+    let rendered = html
+      .replaceAll('{{ORDER_ID}}', orderId)
+      .replaceAll('ORDER-#', orderId)
+      .replaceAll('{{REASON}}', reason);
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(rendered);
+    return;
+  }
+
+  // 4c. Suspicious / Review Outcome
+  if (pathname === '/order-suspicious' || pathname === '/suspicious' || pathname === '/order-suspicious.html') {
+    let html = readTemplate('order-suspicious.html');
+    const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-SUSPICIOUS-TEST';
+    let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(rendered);
+    return;
+  }
+
+  // 4d. Expired Outcome
+  if (pathname === '/order-expired' || pathname === '/expired' || pathname === '/order-expired.html') {
+    let html = readTemplate('order-expired.html');
+    const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-EXPIRED-TEST';
+    let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(rendered);
+    return;
+  }
+
+  // 4e. Cancelled Outcome
+  if (pathname === '/order-cancelled' || pathname === '/cancelled' || pathname === '/order-cancelled.html') {
+    let html = readTemplate('order-cancelled.html');
+    const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-CANCELLED-TEST';
+    let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(rendered);
+    return;
+  }
+
+  // 5. Universal Client SDK: /youpi.js, /youpi-checkout.js, /sdk/youpi.js, /sdk/youpi-checkout.js
+  if (
+    pathname === '/youpi.js' ||
+    pathname === '/youpi-checkout.js' ||
+    pathname === '/sdk/youpi.js' ||
+    pathname === '/sdk/youpi-checkout.js' ||
+    pathname.startsWith('/sdk/')
+  ) {
+    const sdkContent = readTemplate('youpi.js') || readTemplate('youpi-checkout.js');
+    if (sdkContent) {
+      res.writeHead(200, {
+        'Content-Type': 'application/javascript; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache'
+      });
+      res.end(sdkContent);
+      return;
+    }
+  }
+
+  // 6. Store checkout creation: POST /api/checkout
   if (pathname === '/api/checkout' && method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
@@ -210,17 +317,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 4. Client SDK: /sdk/*
-  if (pathname.startsWith('/sdk/')) {
-    const sdkPath = path.resolve(rootDir, 'apps/checkout-portal/src/sdk/youpi-checkout.js');
-    if (fs.existsSync(sdkPath)) {
-      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-      res.end(fs.readFileSync(sdkPath, 'utf8'));
-      return;
-    }
-  }
-
-  // 5. Merchant Admin Hub: /admin and /admin/*
+  // 7. Merchant Admin Hub: /admin and /admin/*
   if (pathname === '/admin' || pathname === '/admin/' || pathname.startsWith('/admin')) {
     const adminHtml = adminPortal.renderHtml();
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -228,7 +325,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 6. Checkout Portal: /checkout/:id/qr.svg
+  // 8. Checkout Portal: /checkout/:id/qr.svg
   const qrMatch = pathname.match(/^\/checkout\/([^/]+)\/qr\.svg$/);
   if (qrMatch) {
     const paymentId = qrMatch[1];
@@ -248,7 +345,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 7. Checkout Portal: /checkout/:id
+  // 9. Checkout Portal: /checkout/:id
   const checkoutMatch = pathname.match(/^\/checkout\/([^/]+)$/);
   if (checkoutMatch) {
     const paymentId = checkoutMatch[1];
@@ -259,7 +356,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 8. Gateway REST API: /api/*
+  // 10. Gateway REST API: /api/*
   if (pathname.startsWith('/api/')) {
     return dispatchApi(req, res);
   }

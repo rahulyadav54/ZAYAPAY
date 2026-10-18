@@ -40,6 +40,7 @@ Thumbs.db
 *.tsbuildinfo
 dist/
 **/dist/
+packages/*/dist/
 
 # Root Testing Screenshots
 *.png
@@ -51,3 +52,5 @@ dist/
 !packages/**
 !docs/**
 !assets/**
+packages/*/dist/
+packages/**/dist/

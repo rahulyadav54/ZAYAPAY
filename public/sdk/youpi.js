@@ -38,7 +38,11 @@
       scriptUrl = new URL(script.src, window.location.href);
     } catch (e) { }
 
-    const origin = scriptUrl ? scriptUrl.origin : (window.location.protocol + '//' + window.location.hostname + ':7000');
+    let defaultOrigin = isBrowser ? window.location.origin : 'http://localhost:7000';
+    if (isBrowser && (window.location.port === '5000' || window.location.port === '5001')) {
+      defaultOrigin = 'http://localhost:7000';
+    }
+    const origin = (scriptUrl && scriptUrl.origin && scriptUrl.origin !== 'null') ? scriptUrl.origin : defaultOrigin;
 
     return {
       key: script.getAttribute('data-youpi-key') || script.getAttribute('data-key') || script.getAttribute('data-merchant-id') || '',
@@ -93,13 +97,13 @@
      * }} options
      */
     constructor(options = {}) {
-      const defaultPortal = isBrowser
-        ? (scriptConfig.portalUrl || (window.location.protocol + '//' + window.location.hostname + ':7000'))
-        : 'http://localhost:7000';
+      let defaultPortalOrigin = isBrowser ? window.location.origin : 'http://localhost:7000';
+      if (isBrowser && (window.location.port === '5000' || window.location.port === '5001')) {
+        defaultPortalOrigin = 'http://localhost:7000';
+      }
+      const defaultPortal = scriptConfig.portalUrl || defaultPortalOrigin;
 
-      const defaultApi = isBrowser
-        ? (scriptConfig.apiUrl || defaultPortal)
-        : 'http://localhost:6100';
+      const defaultApi = scriptConfig.apiUrl || defaultPortal;
 
       this.options = Object.assign({
         key: scriptConfig.key || '',
@@ -261,6 +265,14 @@
             targetUrl = `${window.location.protocol}//${window.location.host}${parsed.pathname}${parsed.search}`;
           } catch {}
         }
+      } else if (isBrowser) {
+        // When deployed on Vercel or any remote domain, never load localhost
+        if (targetUrl.startsWith('http://localhost') || targetUrl.startsWith('http://127.0.0.1')) {
+          try {
+            const parsed = new URL(targetUrl);
+            targetUrl = `${window.location.origin}${parsed.pathname}${parsed.search}`;
+          } catch {}
+        }
       }
 
       // Add embedded flag and custom params
@@ -345,10 +357,8 @@
       backdrop.appendChild(container);
       document.body.appendChild(backdrop);
 
-      requestAnimationFrame(() => {
-        backdrop.classList.add('active');
-        container.classList.add('active');
-      });
+      backdrop.classList.add('active');
+      container.classList.add('active');
 
       this.backdrop = backdrop;
       this.container = container;
@@ -702,28 +712,38 @@
         /* MOBILE BOTTOM DRAWER / BOTTOM SHEET STYLES */
         @media (max-width: 767px) {
           .youpi-checkout-backdrop {
-            align-items: flex-end;
+            position: fixed !important;
+            inset: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            align-items: flex-end !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
           .youpi-checkout-container {
-            width: 100vw;
-            max-width: 100vw;
-            height: 100dvh;
-            height: 100vh;
-            height: 100%;
-            max-height: 100dvh;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            border-top-left-radius: 18px;
-            border-top-right-radius: 18px;
-            transform: translateY(100%);
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 90vh !important;
+            height: 90dvh !important;
+            max-height: 94vh !important;
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-top-left-radius: 20px !important;
+            border-top-right-radius: 20px !important;
+            margin: 0 !important;
+            transform: translateY(0) !important;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
             touch-action: auto !important;
-            overflow: hidden;
-          }
-          .youpi-checkout-container.active {
-            transform: translateY(0);
+            overflow: hidden !important;
           }
           .youpi-checkout-container.closing {
-            transform: translateY(100%);
+            transform: translateY(100%) !important;
           }
         }
       `;
@@ -744,9 +764,16 @@
   // Export globals
   globalScope.YoupiCheckout = YoupiCheckout;
   globalScope.Youpi = YoupiCheckout;
+  globalScope.YouPI = YoupiCheckout;
+  globalScope.ZayaPayCheckout = YoupiCheckout;
+  globalScope.ZayaPay = YoupiCheckout;
+  globalScope.Zayapay = YoupiCheckout;
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = YoupiCheckout;
     module.exports.YoupiCheckout = YoupiCheckout;
     module.exports.Youpi = YoupiCheckout;
+    module.exports.YouPI = YoupiCheckout;
+    module.exports.ZayaPay = YoupiCheckout;
+    module.exports.Zayapay = YoupiCheckout;
   }
 })(typeof window !== 'undefined' ? window : globalThis);
