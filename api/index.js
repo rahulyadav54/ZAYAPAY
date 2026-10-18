@@ -137,7 +137,8 @@ function readTemplate(filename) {
 export default async function handler(req, res) {
   const { app, context, dispatchApi, checkoutPortal, adminPortal, stateFetcher } = initServices();
 
-  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const incomingPath = req.headers['x-forwarded-url'] || req.headers['x-matched-path'] || req.url;
+  const url = new URL(incomingPath, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
   const method = req.method.toUpperCase();
 

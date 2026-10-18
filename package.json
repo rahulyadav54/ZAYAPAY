@@ -9,7 +9,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "node -e \"const fs=require('fs'); if(!fs.existsSync('public')){fs.mkdirSync('public',{recursive:true}); fs.copyFileSync('apps/coin-wallet-store/src/store.html','public/index.html');} console.log('Public assets ready.');\"",
+    "build": "node scripts/build-public.cjs",
     "clean": "node scripts/clean.js",
     "db:setup": "node scripts/init-db.cjs",
     "sync:package": "node scripts/sync-package.cjs",

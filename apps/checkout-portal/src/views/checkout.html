@@ -6294,20 +6294,18 @@
           }
         }
       } catch (e) {
-        console.warn('loadQrSvg error:', e);
+        console.warn('loadQrSvg dynamic fetch error:', e);
       }
-      // Automatic retry to guarantee QR code is loaded
-      setTimeout(async () => {
-        try {
-          const res = await fetch(`/checkout/${PAYMENT_ID}/qr.svg`);
-          if (res.ok) {
-            const svg = await res.text();
-            if (svg && svg.includes('<svg')) {
-              container.innerHTML = svg;
-            }
+      try {
+        const fallbackRes = await fetch('/checkout/qr.svg');
+        if (fallbackRes.ok) {
+          const svg = await fallbackRes.text();
+          if (svg && svg.includes('<svg')) {
+            container.innerHTML = svg;
+            return;
           }
-        } catch (e) {}
-      }, 400);
+        }
+      } catch (e) {}
     }
 
     function copyVpaId() {
