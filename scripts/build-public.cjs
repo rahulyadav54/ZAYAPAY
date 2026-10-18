@@ -70,10 +70,45 @@ if (fs.existsSync(viewCheckout)) {
   content = content
     .replaceAll('{{MERCHANT_NAME}}', 'ZAYA CODE HUB')
     .replaceAll('{{APP_NAME}}', 'ZAYAPAY')
+    .replaceAll('{{PRIMARY_COLOR}}', '#0b63e5')
     .replaceAll('{{PAYEE_VPA}}', 'zayacodehub@okhdfcbank')
+    .replaceAll('{{VPA}}', 'zayacodehub@okhdfcbank')
     .replaceAll('{{AMOUNT}}', '1.00')
     .replaceAll('{{ORDER_ID}}', 'COIN-ORD-DEMO')
-    .replaceAll('{{CURRENCY}}', 'INR');
+    .replaceAll('{{PAYMENT_ID}}', 'COIN-ORD-DEMO')
+    .replaceAll('{{CURRENCY}}', 'INR')
+    .replaceAll('{{API_BASE_URL}}', '')
+    .replaceAll('{{SERVER_HEALTH_CLASS}}', 'is-working')
+    .replaceAll('{{SERVER_HEALTH_LABEL}}', 'Server Is Working')
+    .replaceAll('{{DOWNTIME_ALERT_STYLE}}', 'none')
+    .replaceAll('{{DOWNTIME_ALERT_CLASS}}', 'ypg-downtime-alert')
+    .replaceAll('{{DOWNTIME_HEADING}}', '')
+    .replaceAll('{{DOWNTIME_MSG}}', '')
+    .replaceAll('{{METHOD_SELECTOR_DISPLAY}}', 'none')
+    .replaceAll('{{TAB_COD_STYLE}}', 'display:none;')
+    .replaceAll('{{TAB_CASH_STYLE}}', 'display:none;')
+    .replaceAll('{{TAB_CARD_STYLE}}', 'display:none;')
+    .replaceAll('{{PC_COD_STYLE}}', 'display:none;')
+    .replaceAll('{{PC_CASH_STYLE}}', 'display:none;')
+    .replaceAll('{{PC_CARD_STYLE}}', 'display:none;')
+    .replaceAll('{{DOWNTIME_ALT_BTN_DISPLAY}}', 'none')
+    .replaceAll('{{DOWNTIME_ALT_BTN_LABEL}}', '')
+    .replaceAll('{{COUNTER_INSTRUCTIONS}}', 'Please scan the dynamic UPI QR code or present this screen at the counter.')
+    .replaceAll('{{SIDEBAR_NOTICE}}', 'Fast & Secure 256-Bit Encrypted Payments')
+    .replaceAll('{{LOGO_URL}}', '')
+    .replaceAll('{{INITIAL_STATE_JSON}}', JSON.stringify({
+      id: 'COIN-ORD-DEMO',
+      orderId: 'COIN-ORD-DEMO',
+      amount: '1.00',
+      currency: 'INR',
+      status: 'ACTIVE',
+      timeRemainingSeconds: 300,
+      payeeName: 'ZAYA CODE HUB',
+      payeeVpa: 'zayacodehub@okhdfcbank',
+      merchantName: 'ZAYA CODE HUB',
+      upiServerIndicator: { status: 'WORKING', tier: 'GREEN', label: 'Server Is Working' },
+      branding: { appName: 'ZAYAPAY', primaryColor: '#0b63e5' }
+    }));
 
   fs.writeFileSync(path.resolve(checkoutDir, 'demo.html'), content, 'utf8');
   fs.writeFileSync(path.resolve(checkoutDir, 'index.html'), content, 'utf8');

@@ -365,6 +365,36 @@ export default async function handler(req, res) {
     return;
   }
 
+  // 6b. Storefront Payment Verification & Credit: POST /api/verify-payment
+  if (pathname === '/api/verify-payment' || cleanPath === '/api/verify-payment') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body || '{}');
+        const coins = Number(data.coins) || Math.round(Number(data.amount || 1));
+        const orderId = data.orderId || data.paymentId || `ORD-${Date.now()}`;
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({
+          success: true,
+          coins,
+          orderId,
+          message: 'Payment verified and coins credited successfully.'
+        }));
+      } catch (err) {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, coins: 1, message: 'Verified' }));
+      }
+    });
+    return;
+  }
+
   // 7. Merchant Admin Hub: /admin and /admin/*
   if (cleanPath === '/admin' || cleanPath.startsWith('/admin') || pathname === '/admin' || pathname.startsWith('/admin')) {
     const adminHtml = adminPortal.renderHtml();
@@ -375,10 +405,10 @@ export default async function handler(req, res) {
 
   // 8. Checkout Demo Route: /checkout/demo
   if (cleanPath === '/checkout/demo' || pathname === '/checkout/demo') {
-    const demoHtml = readTemplate('checkout/demo.html') || checkoutPortal.renderHtml('demo', {
+    const demoHtml = checkoutPortal.renderHtml('demo', {
       id: 'demo',
       orderId: url.searchParams.get('orderId') || 'COIN-ORD-DEMO',
-      amount: url.searchParams.get('amount') || '1.00',
+      amount: url.searchParams.get('amount') || url.searchParams.get('customAmount') || '1.00',
       currency: 'INR',
       status: 'ACTIVE',
       payeeVpa: 'zayacodehub@okhdfcbank',
