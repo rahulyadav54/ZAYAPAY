@@ -14,6 +14,7 @@ if (fs.existsSync(storeSrc)) {
   const storeFiles = [
     'store.html',
     'wallet.html',
+    'event-registration.html',
     'order-success.html',
     'order-failed.html',
     'order-cancelled.html',
@@ -27,6 +28,13 @@ if (fs.existsSync(storeSrc)) {
       const destName = f === 'store.html' ? 'index.html' : f;
       fs.copyFileSync(srcFile, path.resolve(pubDir, destName));
     }
+  }
+
+  // Friendly aliases for event registration
+  const eventRegSrc = path.resolve(storeSrc, 'event-registration.html');
+  if (fs.existsSync(eventRegSrc)) {
+    fs.copyFileSync(eventRegSrc, path.resolve(pubDir, 'register.html'));
+    fs.copyFileSync(eventRegSrc, path.resolve(pubDir, 'events.html'));
   }
 
   // Create friendly static aliases so URL variations never 404

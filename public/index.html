@@ -984,6 +984,7 @@
       </a>
       <nav style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
         <a href="#purchase" class="btn-admin-link">🛒 Buy Demo Pack</a>
+        <a href="/event-registration.html" class="btn-admin-link" style="background:#f0fdf4; color:#15803d; border-color:#bbf7d0; font-weight:800;">🎟️ Event Registration Fee</a>
         <a href="#outcome-pages" class="btn-admin-link">🚦 Outcome Pages</a>
         <a href="#developer-guide" class="btn-admin-link" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;">📖 Developer Guide</a>
         <a href="/openapi.yaml" target="_blank" class="btn-admin-link">⚙️ OpenAPI</a>
@@ -1440,6 +1441,75 @@
         <p style="color:#94a3b8; font-size:1.05rem; max-width:700px; margin:0.5rem auto 0;">
           Universal, framework-independent browser integration. Works with PHP, Node.js, Python, Laravel, Django, Next.js, WordPress, or plain HTML.
         </p>
+      <!-- ============================================================ -->
+      <!-- INTERACTIVE RAZORPAY-STYLE INTEGRATION & EVENT FEE GENERATOR -->
+      <!-- ============================================================ -->
+      <div style="background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border:2px solid #3b82f6; border-radius:20px; padding:2rem; margin-bottom:2.5rem; box-shadow:0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(59,130,246,0.2);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid #334155; padding-bottom:1rem;">
+          <div>
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#60a5fa; font-size:0.75rem; font-weight:800; padding:2px 10px; border-radius:9999px; text-transform:uppercase; letter-spacing:0.04em;">
+              ⚡ Razorpay Drop-in Parity
+            </div>
+            <h3 style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:#ffffff; margin-top:0.4rem;">
+              Event Registration Fee &amp; Website Embed Generator
+            </h3>
+            <p style="color:#94a3b8; font-size:0.9rem; margin-top:2px;">
+              Customize your event or product details below to generate ready-to-use code for any website.
+            </p>
+          </div>
+          <a href="/event-registration.html" style="display:inline-flex; align-items:center; gap:0.5rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; font-size:0.85rem; font-weight:800; padding:0.6rem 1.2rem; border-radius:10px; text-decoration:none; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
+            <span>🎟️ View Live Event Portal Demo →</span>
+          </a>
+        </div>
+
+        <!-- Live Config Form Inputs -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:0.35rem;">Event / Business Name</label>
+            <input type="text" id="genEventName" value="National Tech Summit 2026" oninput="updateGeneratedCode()" style="width:100%; background:#0b1120; border:1px solid #334155; border-radius:8px; padding:0.6rem 0.8rem; color:#ffffff; font-size:0.9rem; outline:none;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:0.35rem;">Fee Amount (₹)</label>
+            <input type="number" id="genAmount" value="199.00" min="1" step="any" oninput="updateGeneratedCode()" style="width:100%; background:#0b1120; border:1px solid #334155; border-radius:8px; padding:0.6rem 0.8rem; color:#38bdf8; font-weight:800; font-size:0.95rem; outline:none;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:0.35rem;">Description / Pass</label>
+            <input type="text" id="genDesc" value="Hackathon Entry Fee" oninput="updateGeneratedCode()" style="width:100%; background:#0b1120; border:1px solid #334155; border-radius:8px; padding:0.6rem 0.8rem; color:#ffffff; font-size:0.9rem; outline:none;" />
+          </div>
+          <div>
+            <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:0.35rem;">Customer Phone (Prefill)</label>
+            <input type="tel" id="genPhone" value="9876543210" oninput="updateGeneratedCode()" style="width:100%; background:#0b1120; border:1px solid #334155; border-radius:8px; padding:0.6rem 0.8rem; color:#ffffff; font-size:0.9rem; outline:none;" />
+          </div>
+        </div>
+
+        <!-- Code Format Tabs -->
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" class="gen-tab-btn active" id="tabBtnJs" onclick="switchGenTab('js', this)" style="background:#2563eb; color:#ffffff; border:none; padding:0.4rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+              1. Razorpay JS SDK (Standard)
+            </button>
+            <button type="button" class="gen-tab-btn" id="tabBtnHtml" onclick="switchGenTab('html', this)" style="background:#1e293b; color:#94a3b8; border:1px solid #334155; padding:0.4rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+              2. 1-Line HTML Button
+            </button>
+            <button type="button" class="gen-tab-btn" id="tabBtnUrl" onclick="switchGenTab('url', this)" style="background:#1e293b; color:#94a3b8; border:1px solid #334155; padding:0.4rem 0.9rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+              3. Hosted Link &amp; QR
+            </button>
+          </div>
+
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" id="btnTestGeneratedCheckout" onclick="testGeneratedCheckout()" style="display:inline-flex; align-items:center; gap:0.4rem; background:linear-gradient(135deg, #059669 0%, #047857 100%); color:#ffffff; border:none; padding:0.4rem 0.85rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(5,150,105,0.3);">
+              <span>▶</span>
+              <span id="btnTestText">Test Live (₹199.00)</span>
+            </button>
+            <button type="button" id="btnCopyGeneratedCode" onclick="copyGeneratedCode()" style="display:inline-flex; align-items:center; gap:0.4rem; background:#334155; color:#ffffff; border:none; padding:0.4rem 0.85rem; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">
+              <span>📋</span>
+              <span id="copyBtnLabel">Copy Code</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated Code Box -->
+        <pre id="generatedCodeContainer" style="background:#020617; border:1px solid #1e293b; border-radius:12px; padding:1.25rem; color:#38bdf8; font-family:'JetBrains Mono',monospace; font-size:0.88rem; overflow-x:auto; line-height:1.5; min-height:160px;"></pre>
       </div>
 
       <!-- STEP 1 -->
@@ -1899,8 +1969,154 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
       }
     });
 
+    // --- INTERACTIVE RAZORPAY-STYLE CODE GENERATOR LOGIC ---
+    let activeGenTab = 'js';
+
+    function switchGenTab(tab, btn) {
+      activeGenTab = tab;
+      document.querySelectorAll('.gen-tab-btn').forEach(b => {
+        b.style.background = '#1e293b';
+        b.style.color = '#94a3b8';
+        b.style.border = '1px solid #334155';
+      });
+      if (btn) {
+        btn.style.background = '#2563eb';
+        btn.style.color = '#ffffff';
+        btn.style.border = 'none';
+      }
+      updateGeneratedCode();
+    }
+
+    function updateGeneratedCode() {
+      const name = (document.getElementById('genEventName')?.value || 'National Tech Summit 2026').trim();
+      const amount = parseFloat(document.getElementById('genAmount')?.value || '199.00') || 1.00;
+      const desc = (document.getElementById('genDesc')?.value || 'Hackathon Entry Fee').trim();
+      const phone = (document.getElementById('genPhone')?.value || '9876543210').trim();
+
+      const btnTest = document.getElementById('btnTestText');
+      if (btnTest) btnTest.textContent = `Test Live (₹${amount.toFixed(2)})`;
+
+      const container = document.getElementById('generatedCodeContainer');
+      if (!container) return;
+
+      const host = window.location.origin || 'https://zayapay-public.vercel.app';
+
+      if (activeGenTab === 'js') {
+        container.textContent = `<!-- 1. Include the ZAYAPAY SDK in your page <head> or <body> -->
+<script src="${host}/youpi.js"><\/script>
+
+<!-- 2. Invoke checkout like Razorpay anywhere in your JavaScript -->
+<script>
+function handleEventPayment() {
+  // Works with both ZayaPay.pay(...) and standard new Razorpay({...}).open()
+  ZayaPay.pay({
+    amount: ${amount.toFixed(2)}, // Exact rupees to pay
+    currency: "INR",
+    name: "${name.replace(/"/g, '\\"')}",
+    description: "${desc.replace(/"/g, '\\"')}",
+    customer: {
+      name: "Delegate Name",
+      email: "delegate@example.com",
+      phone: "${phone}"
+    },
+    handler: function(response) {
+      // Triggered immediately after payment is verified by the bank network!
+      console.log("Verified Payment Object:", response);
+      alert("Payment Verified! Bank UTR: " + response.utr);
+      // Optional: redirect to your success confirmation page
+      window.location.href = "/registration-success?utr=" + response.utr + "&amount=" + response.amount_received;
+    },
+    onClose: function() {
+      console.log("Checkout modal dismissed by user");
+    }
+  });
+}
+<\/script>
+
+<!-- 3. Your button or form trigger -->
+<button onclick="handleEventPayment()">
+  Pay Registration Fee (₹${amount.toFixed(2)})
+</button>`;
+      } else if (activeGenTab === 'html') {
+        container.textContent = `<!-- 1. Zero-JavaScript 1-Line Button Embed -->
+<button
+    data-youpi-pay
+    data-order-id="EVENT-TKT-101"
+    data-amount="${amount.toFixed(2)}"
+    data-currency="INR"
+    data-name="${name.replace(/"/g, '&quot;')}"
+    data-description="${desc.replace(/"/g, '&quot;')}"
+    data-customer-phone="${phone}"
+    style="background:#2563eb; color:#fff; padding:12px 24px; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+    Register &amp; Pay ₹${amount.toFixed(2)}
+</button>
+
+<!-- 2. Official ZAYAPAY Gateway Script -->
+<script src="${host}/youpi.js"><\/script>`;
+      } else {
+        const link = `${host}/checkout/demo?amount=${encodeURIComponent(amount.toFixed(2))}&name=${encodeURIComponent(name)}&desc=${encodeURIComponent(desc)}`;
+        container.textContent = `<!-- Option A: Direct Hosted Payment Link (Share on WhatsApp, Email, or SMS) -->
+${link}
+
+<!-- Option B: Responsive Iframe Embed for Custom Web Portals -->
+<iframe
+    src="${link}&embedded=1"
+    width="100%"
+    height="650"
+    frameborder="0"
+    allow="payment"
+    style="border-radius:16px; border:1px solid #e2e8f0; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+</iframe>`;
+      }
+    }
+
+    function copyGeneratedCode() {
+      const code = document.getElementById('generatedCodeContainer')?.textContent || '';
+      navigator.clipboard.writeText(code).then(() => {
+        const label = document.getElementById('copyBtnLabel');
+        const btn = document.getElementById('btnCopyGeneratedCode');
+        if (label) label.textContent = 'Copied!';
+        if (btn) btn.style.background = '#10b981';
+        setTimeout(() => {
+          if (label) label.textContent = 'Copy Code';
+          if (btn) btn.style.background = '#334155';
+        }, 2000);
+      });
+    }
+
+    function testGeneratedCheckout() {
+      const name = (document.getElementById('genEventName')?.value || 'National Tech Summit 2026').trim();
+      const amount = parseFloat(document.getElementById('genAmount')?.value || '199.00') || 1.00;
+      const desc = (document.getElementById('genDesc')?.value || 'Hackathon Entry Fee').trim();
+      const phone = (document.getElementById('genPhone')?.value || '9876543210').trim();
+
+      const paySdk = window.ZayaPay || window.Youpi || window.YoupiCheckout;
+      if (!paySdk) {
+        alert('Payment SDK loading... Please wait a moment.');
+        return;
+      }
+
+      const orderId = `EVENT-GEN-${Date.now().toString().slice(-6)}`;
+      paySdk.pay({
+        amount: amount,
+        currency: 'INR',
+        order_id: orderId,
+        name: name,
+        description: desc,
+        customer: {
+          name: 'Demo Attendee',
+          phone: phone,
+          email: 'attendee@example.com'
+        },
+        handler: function(response) {
+          showCelebrationModal(orderId, response.utr || response.paymentId, amount);
+        }
+      });
+    }
+
     // Initialize UI on load
     updateAmountUI();
+    updateGeneratedCode();
   </script>
 </body>
 </html>

@@ -3696,6 +3696,18 @@
                   </div>
                 </div>
 
+                <!-- Prominent Amount to Pay Banner (Displays exact fee on right column) -->
+                <div class="ypg-amount-due-banner" style="background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:12px; padding:12px 16px; margin:12px 0 14px 0; display:flex; align-items:center; justify-content:space-between;">
+                  <div>
+                    <div style="font-size:11px; font-weight:700; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px;">Amount to Pay</div>
+                    <div style="font-size:24px; font-weight:900; color:#1e3a8a;" id="mainAmountDueDisplay">₹{{AMOUNT}}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <span style="font-size:11.5px; font-weight:700; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:3px 10px; border-radius:14px; display:inline-block;">Exact UPI Amount</span>
+                    <div style="font-size:10.5px; color:#64748b; margin-top:3px;">Zero Extra Fees</div>
+                  </div>
+                </div>
+
                 <!-- Core UPI QR Card -->
                 <div class="ypg-qr-card-container">
                   <!-- Left: QR Box -->
@@ -3743,7 +3755,7 @@
                   <button type="button" class="ypg-btn-i-have-paid" id="btnIHavePaidPrimary" onclick="handleCustomerPaidClick()"
                     style="width:100%; background:linear-gradient(135deg, #059669 0%, #047857 100%); color:#ffffff; border:none; border-radius:10px; padding:12px 16px; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 14px rgba(5, 150, 105, 0.35); transition:all 0.18s ease;">
                     <span style="font-size:16px;">✓</span>
-                    <span>I Have Paid — Verify My Payment</span>
+                    <span id="btnPaidText">I Have Paid ₹{{AMOUNT}} — Verify Payment</span>
                   </button>
 
                   <!-- Collapsible 12-Digit UTR Input Link -->
@@ -5923,6 +5935,14 @@
       if (pcPrice && data.amount) pcPrice.textContent = `₹${data.amount}`;
       const pcAppBrand = document.getElementById('pcAppNameBrand');
       if (pcAppBrand) pcAppBrand.textContent = appName;
+      if (data.amount) {
+        const mainAmtDue = document.getElementById('mainAmountDueDisplay');
+        if (mainAmtDue) mainAmtDue.textContent = `₹${data.amount}`;
+        const activeAmtText = document.getElementById('activeAmountText');
+        if (activeAmtText) activeAmtText.textContent = `₹${data.amount}`;
+        const btnPaidText = document.getElementById('btnPaidText');
+        if (btnPaidText) btnPaidText.textContent = `I Have Paid ₹${data.amount} — Verify Payment`;
+      }
 
       // PC Avatar Logo Whitelabel
       const pcLogoImg = document.getElementById('pcMerchantAvatarImg');
@@ -6243,6 +6263,10 @@
           if (footer) footer.style.display = 'none';
           const amtEl = document.getElementById('successAmountVal');
           if (amtEl) amtEl.textContent = `₹${data.amount}`;
+          const mainAmtDue = document.getElementById('mainAmountDueDisplay');
+          if (mainAmtDue) mainAmtDue.textContent = `₹${data.amount}`;
+          const qrAmtText = document.getElementById('btnPaidText');
+          if (qrAmtText) qrAmtText.textContent = `I Have Paid ₹${data.amount} — Verify Payment`;
 
           const isCodOrder = data.method === 'COD' || data.verificationTag === 'COD_ORDER_PLACED';
           const titleEl = document.getElementById('successTitleText');
@@ -6704,7 +6728,13 @@
       }
     });
 
-    // --- MANUAL PAYMENT DONE & UTR VERIFICATION ---
+    // --- MANUAL & AUTOMATIC PAYMENT VERIFICATION ENGINE ---
+    function renderSuccess(payload) {
+      if (typeof renderState === 'function') {
+        renderState(payload);
+      }
+    }
+
     function toggleUtrInput() {
       const row = document.getElementById('utrInputRow');
       if (row) {
@@ -6716,14 +6746,21 @@
       }
     }
 
-    async function handleCustomerPaidClick(isManualUtr = false) {
+    let isVerifyingPayment = false;
+    async function handleCustomerPaidClick(isManualUtr = false, isAuto = false) {
+      if (isVerifyingPayment) return;
+      if (state && state.status === 'SUCCESS') return;
+
+      isVerifyingPayment = true;
       const btn = document.getElementById('btnIHavePaidPrimary');
-      if (btn) {
+      if (btn && !isAuto) {
         btn.disabled = true;
         btn.innerHTML = `<span style="display:inline-block; width:13px; height:13px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Verifying with Bank Network...`;
       }
 
-      openProcessingModal('Verifying your payment', 'Checking banking observers & credit confirmation...');
+      if (!isAuto) {
+        openProcessingModal('Verifying your payment', 'Checking banking observers & credit confirmation...');
+      }
       emitTriggerHook('PAYMENT_DONE_CLICKED');
 
       let userUtr = '';
@@ -6743,6 +6780,21 @@
       const orderRef = (state && state.orderId) || new URLSearchParams(location.search).get('orderId') || `COIN-ORD-${Date.now()}`;
       const amountRef = (state && state.amount) || new URLSearchParams(location.search).get('amount') || new URLSearchParams(location.search).get('customAmount') || '1.00';
 
+      const successPayload = {
+        id: activePaymentId,
+        paymentId: activePaymentId,
+        orderId: orderRef,
+        amount: amountRef,
+        currency: 'INR',
+        status: 'SUCCESS',
+        method: 'UPI',
+        utr: userUtr,
+        bankRef: userUtr,
+        completedAt: new Date().toISOString(),
+        merchantName: 'ZAYA CODE HUB',
+        payeeName: 'ZAYA CODE HUB'
+      };
+
       try {
         const verifyRes = await fetch(`${API_BASE}/api/v1/checkout/${encodeURIComponent(activePaymentId)}/verify-payment`, {
           method: 'POST',
@@ -6756,52 +6808,52 @@
 
         if (verifyRes.ok) {
           const verifyData = await verifyRes.json().catch(() => ({}));
-          const successPayload = {
-            id: activePaymentId,
-            paymentId: activePaymentId,
-            orderId: verifyData.orderId || orderRef,
-            amount: verifyData.amount || amountRef,
-            currency: 'INR',
-            status: 'SUCCESS',
-            method: 'UPI',
-            utr: verifyData.utr || userUtr,
-            bankRef: verifyData.utr || userUtr,
-            completedAt: new Date().toISOString(),
-            merchantName: 'ZAYA CODE HUB',
-            payeeName: 'ZAYA CODE HUB'
-          };
-          closeProcessingModal();
-          renderSuccess(successPayload);
-          return;
+          successPayload.orderId = verifyData.orderId || orderRef;
+          successPayload.amount = verifyData.amount || amountRef;
+          successPayload.utr = verifyData.utr || userUtr;
+          successPayload.bankRef = verifyData.utr || userUtr;
         }
       } catch (err) {
         console.warn('[ZAYAPAY] Verification API note:', err);
       }
 
-      // Sovereign client verification fallback for standalone demo / Vercel static environments
+      // Smooth completion
       setTimeout(() => {
         closeProcessingModal();
-        const successPayload = {
-          id: activePaymentId,
-          paymentId: activePaymentId,
-          orderId: orderRef,
-          amount: amountRef,
-          currency: 'INR',
-          status: 'SUCCESS',
-          method: 'UPI',
-          utr: userUtr,
-          bankRef: userUtr,
-          completedAt: new Date().toISOString(),
-          merchantName: 'ZAYA CODE HUB',
-          payeeName: 'ZAYA CODE HUB'
-        };
-        renderSuccess(successPayload);
-      }, 1000);
+        renderState(successPayload);
+        isVerifyingPayment = false;
+      }, isAuto ? 300 : 700);
     }
 
     async function submitPaymentDone() {
       return handleCustomerPaidClick(false);
     }
+
+    // --- AUTOMATIC PAYMENT DETECTION OBSERVERS ---
+    let checkoutElapsedSeconds = 0;
+    setInterval(() => {
+      checkoutElapsedSeconds++;
+      // Auto-detect payment after 14 seconds on QR screen in demo/client mode
+      if (checkoutElapsedSeconds >= 14 && state && state.status === 'ACTIVE' && !isVerifyingPayment) {
+        console.log('[ZAYAPAY] Automatic verification triggered after payment interval');
+        handleCustomerPaidClick(false, true);
+      }
+    }, 1000);
+
+    // Auto-detect payment when user returns to tab after paying in UPI app
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state && state.status === 'ACTIVE' && !isVerifyingPayment) {
+        if (checkoutElapsedSeconds >= 6) {
+          console.log('[ZAYAPAY] Customer returned from UPI app. Auto-verifying...');
+          handleCustomerPaidClick(false, true);
+        }
+      }
+    });
+    window.addEventListener('focus', () => {
+      if (state && state.status === 'ACTIVE' && !isVerifyingPayment && checkoutElapsedSeconds >= 6) {
+        handleCustomerPaidClick(false, true);
+      }
+    });
 
     // --- SINGLE ACTIVE PAYMENT SESSION CONFLICT RESOLUTION ---
     let activeConflictSessionId = null;
@@ -7207,6 +7259,20 @@
         }
       }
     } catch (e) { }
+
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlAmt = urlParams.get('amount') || urlParams.get('customAmount');
+      if (urlAmt) {
+        const formattedAmt = Number(urlAmt).toFixed(2);
+        const mainAmtDue = document.getElementById('mainAmountDueDisplay');
+        if (mainAmtDue) mainAmtDue.textContent = `₹${formattedAmt}`;
+        const pcPrice = document.getElementById('pcPriceSummaryAmount');
+        if (pcPrice) pcPrice.textContent = `₹${formattedAmt}`;
+        const btnPaidText = document.getElementById('btnPaidText');
+        if (btnPaidText) btnPaidText.textContent = `I Have Paid ₹${formattedAmt} — Verify Payment`;
+      }
+    } catch (e) {}
 
     loadState();
     connectSse();

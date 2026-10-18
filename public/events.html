@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Event Registration Fee Portal · ZAYAPAY Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <!-- OFFICIAL ZAYAPAY / YOUPI PG UNIVERSAL ONE-SCRIPT INTEGRATION (DROP-IN RAZORPAY COMPATIBLE) -->
+  <script src="/youpi.js" data-youpi-key="00000000-0000-0000-0000-000000000001" data-currency="INR"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-dark: #1e40af;
+      --primary-glow: rgba(37, 99, 235, 0.28);
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+
+      --bg: #090d16;
+      --bg-surface: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-subtle: #162032;
+      --border: #334155;
+      --border-focus: #3b82f6;
+
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.12);
+      --success-border: #059669;
+
+      --amber: #f59e0b;
+      --amber-light: rgba(245, 158, 11, 0.12);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* --- TOP NAVBAR --- */
+    .portal-nav {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .brand-subtitle {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--success-light);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+    }
+    .badge-status .dot {
+      width: 7px;
+      height: 7px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+    }
+    .btn-nav-code {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: #38bdf8;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-nav-code:hover {
+      background: #334155;
+      color: #ffffff;
+    }
+
+    /* --- HERO BANNER --- */
+    .hero-banner {
+      background: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0f172a 70%, #090d16 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    }
+    .event-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .event-h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      max-width: 900px;
+      margin: 0 auto 1rem;
+    }
+    .event-h1 span {
+      background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .event-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    /* --- REGISTRATION CONTAINER --- */
+    .registration-container {
+      max-width: 1100px;
+      margin: 2.5rem auto 4rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .reg-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .reg-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* --- FORM CARD --- */
+    .reg-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+    }
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* --- TICKET PASS SELECTION --- */
+    .passes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .pass-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .pass-card:hover {
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+    }
+    .pass-card.selected {
+      border-color: #3b82f6;
+      background: rgba(37, 99, 235, 0.12);
+      box-shadow: 0 0 0 1px #3b82f6, 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+    }
+    .pass-badge {
+      position: absolute;
+      top: -9px;
+      right: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .pass-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.3rem;
+    }
+    .pass-price {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+    .pass-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      line-height: 1.4;
+    }
+
+    /* --- CUSTOM AMOUNT INPUT --- */
+    .custom-tier-box {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .custom-tier-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .custom-input-group {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.75rem;
+      gap: 0.4rem;
+      max-width: 170px;
+    }
+    .custom-input-group:focus-within {
+      border-color: #3b82f6;
+    }
+    .currency-symbol {
+      color: #38bdf8;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .custom-input-field {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      width: 100%;
+    }
+
+    /* --- FORM FIELDS --- */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.45rem;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      color: #ffffff;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.15s;
+    }
+    .form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    .form-input::placeholder {
+      color: var(--text-dim);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 550px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* --- RIGHT SUMMARY SIDEBAR --- */
+    .summary-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 90px;
+    }
+    .summary-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .summary-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .summary-merchant {
+      font-size: 0.75rem;
+      color: #38bdf8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .summary-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .summary-line strong {
+      color: #ffffff;
+    }
+    .total-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 1.25rem 0;
+    }
+    .total-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .total-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    /* --- PRIMARY REGISTRATION / PAY BUTTON --- */
+    .btn-pay-registration {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.5rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.45);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-pay-registration:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(37, 99, 235, 0.6);
+    }
+    .btn-pay-registration:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .trust-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .trust-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .trust-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* --- SUCCESS REGISTRATION CONFIRMATION PASS / TICKET --- */
+    .ticket-confirmation-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .ticket-confirmation-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .ticket-card {
+      background: #0f172a;
+      border: 2px solid #38bdf8;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 2.25rem 2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.25);
+      position: relative;
+      text-align: center;
+    }
+    .ticket-badge-verified {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+    }
+    .ticket-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+    .ticket-subtitle {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+    .ticket-body {
+      background: #1e293b;
+      border: 1px dashed #475569;
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+    .ticket-row strong {
+      color: #ffffff;
+    }
+    .btn-ticket-print {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .btn-ticket-close {
+      background: #334155;
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* --- EMBED CODE DRAWER / MODAL --- */
+    .embed-drawer {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .embed-drawer.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .drawer-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      max-width: 780px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+    .drawer-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .code-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 1rem 0;
+      position: relative;
+    }
+    .btn-copy-code {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION -->
+  <header class="portal-nav">
+    <div class="nav-inner">
+      <a href="/index.html" class="brand-box">
+        <div class="brand-icon">Z</div>
+        <div>
+          <div class="brand-title">ZAYAPAY GATEWAY</div>
+          <div class="brand-subtitle">Event Registration Portal</div>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div class="badge-status">
+          <span class="dot"></span>
+          <span>Gateway Active</span>
+        </div>
+        <button type="button" class="btn-nav-code" onclick="toggleEmbedDrawer()">
+          <span>&lt;/&gt;</span>
+          <span>Get Embed Code</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO EVENT BANNER -->
+  <section class="hero-banner">
+    <div class="event-tag">
+      <span>⚡</span>
+      <span>National Technology Hackathon &amp; Summit 2026</span>
+    </div>
+    <h1 class="event-h1">
+      Register for <span>ZAYA HACKFEST 2026</span>
+    </h1>
+    <p style="color:var(--text-muted); font-size:1.05rem; max-width:680px; margin:0 auto;">
+      Organized by <strong>ZAYA CODE HUB</strong> · Direct NPCI UPI Registration Settlement. Instant Pass Issuance.
+    </p>
+
+    <div class="event-meta-row">
+      <div class="meta-pill">📅 <strong>Nov 14-16, 2026</strong></div>
+      <div class="meta-pill">📍 <strong>Bengaluru Tech Park &amp; Virtual</strong></div>
+      <div class="meta-pill">👥 <strong>500+ Innovators Enrolled</strong></div>
+      <div class="meta-pill">🏆 <strong>₹5,00,000 Prize Pool</strong></div>
+    </div>
+  </section>
+
+  <!-- MAIN REGISTRATION SECTION -->
+  <main class="registration-container">
+    <div class="reg-grid">
+      
+      <!-- LEFT: TICKET SELECTION & ATTENDEE FORM -->
+      <div class="reg-card">
+        <h2 class="card-title">1. Select Your Registration Pass</h2>
+        <p class="card-subtitle">Choose the pass that best fits your attendance mode or contribution.</p>
+
+        <div class="passes-grid">
+          <!-- Pass 1: Student -->
+          <div class="pass-card selected" onclick="selectPass('Student Innovator Pass', 99, this)">
+            <span class="pass-badge">Popular</span>
+            <div class="pass-name">Student Pass</div>
+            <div class="pass-price">₹99</div>
+            <div class="pass-desc">Full 3-day access, hackathon participation, swag pack &amp; verified certificate.</div>
+          </div>
+
+          <!-- Pass 2: Hacker -->
+          <div class="pass-card" onclick="selectPass('Developer Hacker Pass', 199, this)">
+            <div class="pass-name">Hacker Pass</div>
+            <div class="pass-price">₹199</div>
+            <div class="pass-desc">Full access + AI API credits, mentor 1-on-1 access, and lunch included.</div>
+          </div>
+
+          <!-- Pass 3: Team -->
+          <div class="pass-card" onclick="selectPass('Team Hackathon Pass (4 Members)', 499, this)">
+            <span class="pass-badge">Best Value</span>
+            <div class="pass-name">Team Pass</div>
+            <div class="pass-price">₹499</div>
+            <div class="pass-desc">Registers up to 4 squad members with dedicated workspace &amp; team table.</div>
+          </div>
+
+          <!-- Pass 4: VIP -->
+          <div class="pass-card" onclick="selectPass('All-Access VIP Delegate', 999, this)">
+            <div class="pass-name">VIP Delegate</div>
+            <div class="pass-price">₹999</div>
+            <div class="pass-desc">VIP seating, keynote dinners, networking cocktail lounge &amp; investor intros.</div>
+          </div>
+        </div>
+
+        <!-- Custom Contribution / Custom Fee Option -->
+        <div class="custom-tier-box">
+          <div>
+            <div class="custom-tier-label">Need a Custom Pass or Sponsorship Fee?</div>
+            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Enter any amount to test custom payment verification:</div>
+          </div>
+          <div class="custom-input-group">
+            <span class="currency-symbol">₹</span>
+            <input type="number" id="customPassAmount" class="custom-input-field" placeholder="99.00" min="1" step="any" oninput="handleCustomAmount(this.value)" />
+          </div>
+        </div>
+
+        <!-- ATTENDEE DETAILS FORM -->
+        <h2 class="card-title" style="margin-top:2rem;">2. Attendee Details</h2>
+        <p class="card-subtitle">Your official pass ticket will be linked to this email and phone.</p>
+
+        <form id="eventRegistrationForm" onsubmit="handleRegistrationSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="regFullName">Full Name *</label>
+              <input type="text" id="regFullName" class="form-input" placeholder="e.g. Aarav Sharma" required value="Mohit Verma" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Email Address *</label>
+              <input type="email" id="regEmail" class="form-input" placeholder="e.g. mohit@example.com" required value="mohit@example.com" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="regPhone">WhatsApp / Mobile Number *</label>
+              <input type="tel" id="regPhone" class="form-input" placeholder="10-digit mobile number" required value="9876543210" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regCollege">College / Organization</label>
+              <input type="text" id="regCollege" class="form-input" placeholder="e.g. IIT Bombay / Freelance" value="ZAYA Tech Labs" />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: ORDER SUMMARY & INSTANT CHECKOUT TRIGGER -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="summary-title">Pass Summary</div>
+          <div class="summary-merchant">Merchant: ZAYA CODE HUB</div>
+        </div>
+
+        <div class="summary-line">
+          <span>Selected Pass:</span>
+          <strong id="summaryPassName">Student Innovator Pass</strong>
+        </div>
+        <div class="summary-line">
+          <span>Registration Fee:</span>
+          <strong id="summarySubtotal">₹99.00</strong>
+        </div>
+        <div class="summary-line">
+          <span>Platform &amp; Gateway Fees:</span>
+          <span style="color:#10b981; font-weight:700;">₹0.00 (Zero Fee)</span>
+        </div>
+        <div class="summary-line">
+          <span>Direct Bank Settlement:</span>
+          <span style="color:#38bdf8; font-weight:700;">HDFC Bank UPI</span>
+        </div>
+
+        <div class="total-box">
+          <div>
+            <div class="total-label">Amount to Pay</div>
+            <div style="font-size:0.7rem; color:#64748b;">Includes all taxes &amp; entry</div>
+          </div>
+          <div class="total-amount" id="summaryTotalAmount">₹99.00</div>
+        </div>
+
+        <!-- PAYMENT ACTION BUTTON -->
+        <button type="button" class="btn-pay-registration" id="btnPayRegistration" onclick="handleRegistrationSubmit(event)">
+          <span>⚡ Pay Registration Fee (<span id="btnPayAmount">₹99.00</span>)</span>
+        </button>
+
+        <div class="trust-footer">
+          <div class="trust-badge-row">
+            <span class="trust-pill">🔒 256-Bit SSL</span>
+            <span class="trust-pill">⚡ NPCI Instant UPI</span>
+            <span class="trust-pill">🛡️ Zero Intermediary</span>
+          </div>
+          <p>Powered by ZAYAPAY Gateway · Direct merchant VPA credit: <code>zayacodehub@okhdfcbank</code></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- SUCCESS TICKET CONFIRMATION PASS MODAL -->
+  <div class="ticket-confirmation-modal" id="ticketModal">
+    <div class="ticket-card">
+      <div class="ticket-badge-verified">✓</div>
+      <h2 class="ticket-title">Registration Verified!</h2>
+      <p class="ticket-subtitle">Your payment was confirmed and your registration is locked in.</p>
+
+      <div class="ticket-body">
+        <div class="ticket-row">
+          <span>Ticket ID:</span>
+          <strong id="ticketId">ZAYA-TKT-2026-88412</strong>
+        </div>
+        <div class="ticket-row">
+          <span>Attendee Name:</span>
+          <strong id="ticketAttendee">Mohit Verma</strong>
+        </div>
+        <div class="ticket-row">
+          <span>Event:</span>
+          <strong>ZAYA HACKFEST 2026</strong>
+        </div>
+        <div class="ticket-row">
+          <span>Pass Type:</span>
+          <strong id="ticketPassName">Student Innovator Pass</strong>
+        </div>
+        <div class="ticket-row">
+          <span>Amount Paid:</span>
+          <strong id="ticketAmount" style="color:#10b981;">₹99.00</strong>
+        </div>
+        <div class="ticket-row">
+          <span>Bank UTR / Ref:</span>
+          <strong id="ticketUtr" style="font-family:'JetBrains Mono',monospace;">UTR-BANK-OKHDFC</strong>
+        </div>
+      </div>
+
+      <button type="button" class="btn-ticket-print" onclick="window.print()">🖨️ Print Ticket</button>
+      <button type="button" class="btn-ticket-close" onclick="closeTicketModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- HOW TO EMBED ON YOUR WEBSITE (CODE DRAWER) -->
+  <div class="embed-drawer" id="embedDrawer">
+    <div class="drawer-card">
+      <button type="button" class="drawer-close" onclick="toggleEmbedDrawer()">✕</button>
+      <h2 style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:0.4rem;">
+        How to Implement ZAYAPAY on Your Website
+      </h2>
+      <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:1.5rem;">
+        Copy and paste this drop-in snippet into your website to collect event registration fees, tickets, or service payments just like Razorpay.
+      </p>
+
+      <div style="font-size:0.85rem; font-weight:700; color:#38bdf8; text-transform:uppercase; margin-bottom:0.3rem;">
+        Method 1: Razorpay-Style JavaScript SDK Call (Recommended)
+      </div>
+      <div class="code-box">
+        <button type="button" class="btn-copy-code" onclick="copySnippet('jsCodeSnippet', this)">Copy Code</button>
+        <pre id="jsCodeSnippet">&lt;!-- 1. Include the ZAYAPAY SDK in your HTML head or body --&gt;
+&lt;script src="https://zayapay-public.vercel.app/youpi.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Trigger payment anywhere in your website --&gt;
+&lt;script&gt;
+function payEventRegistration() {
+  ZayaPay.pay({
+    amount: 99.00, // Exact amount in rupees
+    currency: "INR",
+    name: "ZAYA CODE HUB",
+    description: "Event Registration Fee",
+    customer: {
+      name: "Mohit Verma",
+      email: "mohit@example.com",
+      phone: "9876543210"
+    },
+    handler: function(response) {
+      // Called automatically once payment is verified!
+      console.log("Verified Payment Response:", response);
+      alert("Payment Verified Successfully! UTR: " + response.utr);
+      // Fulfill registration or redirect
+      window.location.href = "/registration-success?utr=" + response.utr;
+    },
+    onClose: function() {
+      console.log("Customer closed the checkout modal");
+    }
+  });
+}
+&lt;/script&gt;</pre>
+      </div>
+
+      <div style="font-size:0.85rem; font-weight:700; color:#4ade80; text-transform:uppercase; margin-top:1.5rem; margin-bottom:0.3rem;">
+        Method 2: Zero-JavaScript HTML Button
+      </div>
+      <div class="code-box">
+        <button type="button" class="btn-copy-code" onclick="copySnippet('htmlCodeSnippet', this)">Copy Code</button>
+        <pre id="htmlCodeSnippet">&lt;!-- Just add data-youpi-pay to any button on your page! --&gt;
+&lt;button 
+    data-youpi-pay
+    data-order-id="EVENT-TKT-101"
+    data-amount="99.00"
+    data-currency="INR"
+    data-name="National Hackathon"
+    data-description="Student Registration Pass"&gt;
+    Register &amp; Pay ₹99
+&lt;/button&gt;
+&lt;script src="https://zayapay-public.vercel.app/youpi.js"&gt;&lt;/script&gt;</pre>
+      </div>
+
+      <div style="font-size:0.85rem; font-weight:700; color:#a78bfa; text-transform:uppercase; margin-top:1.5rem; margin-bottom:0.3rem;">
+        Method 3: Razorpay Drop-in Drop-in Constructor
+      </div>
+      <div class="code-box">
+        <button type="button" class="btn-copy-code" onclick="copySnippet('rzpCodeSnippet', this)">Copy Code</button>
+        <pre id="rzpCodeSnippet">&lt;script src="https://zayapay-public.vercel.app/youpi.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+// Existing Razorpay frontend code works with zero refactoring!
+var options = {
+    key: "00000000-0000-0000-0000-000000000001",
+    amount: 99.00,
+    name: "ZAYA CODE HUB",
+    description: "Event Registration Fee",
+    prefill: {
+        name: "Aarav Sharma",
+        email: "aarav@example.com",
+        contact: "9876543210"
+    },
+    handler: function (response) {
+        alert("Payment ID: " + response.razorpay_payment_id);
+    }
+};
+var rzp = new Razorpay(options);
+rzp.open();
+&lt;/script&gt;</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentPassName = 'Student Innovator Pass';
+    let currentPassAmount = 99.00;
+
+    function selectPass(name, amount, element) {
+      currentPassName = name;
+      currentPassAmount = Number(amount);
+
+      document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('selected'));
+      if (element) element.classList.add('selected');
+
+      const customInput = document.getElementById('customPassAmount');
+      if (customInput) customInput.value = '';
+
+      updateSummaryUI();
+    }
+
+    function handleCustomAmount(val) {
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        currentPassAmount = num;
+        currentPassName = 'Custom Registration Pass';
+        document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('selected'));
+      } else {
+        currentPassAmount = 99.00;
+        currentPassName = 'Student Innovator Pass';
+      }
+      updateSummaryUI();
+    }
+
+    function updateSummaryUI() {
+      const formatted = '₹' + currentPassAmount.toFixed(2);
+      const nameEl = document.getElementById('summaryPassName');
+      const subtotalEl = document.getElementById('summarySubtotal');
+      const totalEl = document.getElementById('summaryTotalAmount');
+      const btnAmt = document.getElementById('btnPayAmount');
+
+      if (nameEl) nameEl.textContent = currentPassName;
+      if (subtotalEl) subtotalEl.textContent = formatted;
+      if (totalEl) totalEl.textContent = formatted;
+      if (btnAmt) btnAmt.textContent = formatted;
+    }
+
+    async function handleRegistrationSubmit(e) {
+      if (e) e.preventDefault();
+
+      const fullName = (document.getElementById('regFullName')?.value || 'Mohit Verma').trim();
+      const email = (document.getElementById('regEmail')?.value || 'mohit@example.com').trim();
+      const phone = (document.getElementById('regPhone')?.value || '9876543210').trim();
+      const college = (document.getElementById('regCollege')?.value || 'ZAYA Tech Labs').trim();
+
+      const orderId = `EVENT-REG-${Date.now().toString().slice(-6)}`;
+      const btn = document.getElementById('btnPayRegistration');
+      const originalText = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span style="display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:8px;"></span> Opening Gateway...`;
+
+      const paySdk = window.ZayaPay || window.Youpi || window.YoupiCheckout;
+
+      if (!paySdk) {
+        alert('Payment SDK loading... Please wait a moment.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        return;
+      }
+
+      try {
+        paySdk.pay({
+          amount: currentPassAmount,
+          currency: 'INR',
+          order_id: orderId,
+          name: 'ZAYA CODE HUB',
+          description: `${currentPassName} · Registration Fee`,
+          customer: {
+            name: fullName,
+            email: email,
+            phone: phone
+          },
+          metadata: {
+            event: 'ZAYA HACKFEST 2026',
+            passType: currentPassName,
+            college: college
+          },
+          handler: function(response) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            showTicketModal(orderId, fullName, currentPassName, currentPassAmount, response.utr || response.paymentId);
+          },
+          onClose: function() {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        });
+      } catch (err) {
+        console.error('Registration Payment Error:', err);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    function showTicketModal(orderId, attendee, pass, amount, utr) {
+      const modal = document.getElementById('ticketModal');
+      document.getElementById('ticketId').textContent = 'ZAYA-TKT-' + (orderId.split('-').pop() || '2026');
+      document.getElementById('ticketAttendee').textContent = attendee;
+      document.getElementById('ticketPassName').textContent = pass;
+      document.getElementById('ticketAmount').textContent = '₹' + Number(amount).toFixed(2);
+      document.getElementById('ticketUtr').textContent = utr || 'VERIFIED-NPCI-UPI';
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeTicketModal() {
+      const modal = document.getElementById('ticketModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function toggleEmbedDrawer() {
+      const drawer = document.getElementById('embedDrawer');
+      if (drawer) drawer.classList.toggle('active');
+    }
+
+    function copySnippet(elementId, btn) {
+      const code = document.getElementById(elementId)?.textContent || '';
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+          btn.textContent = oldText;
+          btn.style.background = '#1e293b';
+        }, 2000);
+      });
+    }
+
+    // Keydown ESC
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeTicketModal();
+        const drawer = document.getElementById('embedDrawer');
+        if (drawer) drawer.classList.remove('active');
+      }
+    });
+
+    updateSummaryUI();
+  </script>
+</body>
+</html>
