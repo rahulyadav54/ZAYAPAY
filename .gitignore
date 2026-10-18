@@ -38,6 +38,8 @@ Thumbs.db
 *.tmp
 *.temp
 *.tsbuildinfo
+dist/
+**/dist/
 
 # Root Testing Screenshots
 *.png
