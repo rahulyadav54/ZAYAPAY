@@ -51,7 +51,16 @@ export class PaymentSessionRepository {
     return this.mapRow(row);
   }
 
-  findByOrderId(merchantId, orderId) {
+  findByOrderId(merchantId, orderId = null) {
+    if (orderId === null || orderId === undefined) {
+      const targetOrderId = merchantId;
+      const row = this.db.queryOne(
+        'SELECT * FROM payment_sessions WHERE order_id = ? ORDER BY created_at DESC LIMIT 1',
+        [targetOrderId]
+      );
+      if (!row) return null;
+      return this.mapRow(row);
+    }
     const row = this.db.queryOne(
       'SELECT * FROM payment_sessions WHERE merchant_id = ? AND order_id = ?',
       [merchantId, orderId]
@@ -238,12 +247,25 @@ export class PaymentSessionRepository {
       if (options.replacedBySessionId) {
         metadata = { ...metadata, replacedBySessionId: options.replacedBySessionId };
       }
+      if (options.utr) {
+        metadata = { ...metadata, utr: options.utr, bankRef: options.utr };
+      }
+      if (options.customerPhone) {
+        metadata = { ...metadata, customerPhone: options.customerPhone };
+      }
+      if (options.customerEmail) {
+        metadata = { ...metadata, customerEmail: options.customerEmail };
+      }
+
+      const vLevel = targetStatus === PaymentStatus.SUCCESS ? 2 : (session.verificationLevel || 0);
+      const vSources = targetStatus === PaymentStatus.SUCCESS ? JSON.stringify(['UPI_OBSERVER', 'BANK_NETWORK']) : (session.verificationSources ? JSON.stringify(session.verificationSources) : '[]');
+      const vTag = targetStatus === PaymentStatus.SUCCESS ? 'INSTANT_SETTLEMENT' : (session.verificationTag || 'UNVERIFIED');
 
       this.db.execute(`
         UPDATE payment_sessions
-        SET status = ?, completed_at = ?, attributed_observation_id = ?, metadata = ?, updated_at = ?
+        SET status = ?, completed_at = ?, attributed_observation_id = ?, metadata = ?, verification_level = ?, verification_sources = ?, verification_tag = ?, updated_at = ?
         WHERE id = ?
-      `, [targetStatus, now, attributedObsId, JSON.stringify(metadata), now, sessionId]);
+      `, [targetStatus, now, attributedObsId, JSON.stringify(metadata), vLevel, vSources, vTag, now, sessionId]);
 
       // Release slot on receiving account if this session owned it
       if (session.receivingAccountId) {

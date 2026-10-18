@@ -1836,7 +1836,7 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
           btn.setAttribute('data-order-id', orderId);
         }
 
-        let checkoutUrl = `/checkout/demo?amount=${encodeURIComponent(currentAmount.toFixed(2))}&orderId=${encodeURIComponent(orderId)}`;
+        let checkoutUrl = `/checkout/?amount=${encodeURIComponent(currentAmount.toFixed(2))}&orderId=${encodeURIComponent(orderId)}`;
         let paymentId = orderId;
 
         // 1. Create order on store backend via YoupiPaymentClient if API is reachable
@@ -2054,7 +2054,7 @@ function handleEventPayment() {
 <!-- 2. Official ZAYAPAY Gateway Script -->
 <script src="${host}/youpi.js"><\/script>`;
       } else {
-        const link = `${host}/checkout/demo?amount=${encodeURIComponent(amount.toFixed(2))}&name=${encodeURIComponent(name)}&desc=${encodeURIComponent(desc)}`;
+        const link = `${host}/checkout/?amount=${encodeURIComponent(amount.toFixed(2))}&name=${encodeURIComponent(name)}&desc=${encodeURIComponent(desc)}`;
         container.textContent = `<!-- Option A: Direct Hosted Payment Link (Share on WhatsApp, Email, or SMS) -->
 ${link}
 
