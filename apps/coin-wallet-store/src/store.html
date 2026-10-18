@@ -1713,7 +1713,6 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
         modal.classList.remove('active');
       }
     }
-    }
 
     // --- AMOUNT MODIFIER & BUY BOX ---
     function selectAmount(amt, chipEl) {
@@ -1750,19 +1749,23 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
     // --- PURCHASE INITIATION (Using Official Universal YouPI Integration) ---
     async function startGatewayPurchase() {
       const btn = document.getElementById('btnInitiateCheckout');
-      const oldHtml = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ Preparing Gateway Session...</span>';
+      const oldHtml = btn ? btn.innerHTML : 'Buy Now with ZAYAPAY';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Preparing Gateway Session...</span>';
+      }
 
       try {
         const orderId = `COIN-ORD-${Date.now()}`;
-        btn.setAttribute('data-amount', currentAmount.toFixed(2));
-        btn.setAttribute('data-order-id', orderId);
+        if (btn) {
+          btn.setAttribute('data-amount', currentAmount.toFixed(2));
+          btn.setAttribute('data-order-id', orderId);
+        }
 
         let checkoutUrl = `/checkout/demo?amount=${encodeURIComponent(currentAmount.toFixed(2))}&orderId=${encodeURIComponent(orderId)}`;
-        let paymentId = 'demo';
+        let paymentId = orderId;
 
-        // 1. Create order on store backend via YoupiPaymentClient
+        // 1. Create order on store backend via YoupiPaymentClient if API is reachable
         try {
           const res = await fetch('/api/checkout', {
             method: 'POST',
@@ -1775,8 +1778,8 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
           });
 
           if (res.ok) {
-            const data = await res.json();
-            if (data.checkoutUrl) {
+            const data = await res.json().catch(() => ({}));
+            if (data && data.checkoutUrl) {
               checkoutUrl = data.checkoutUrl;
               paymentId = data.paymentId || orderId;
             }
@@ -1786,7 +1789,14 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
         }
 
         // 2. Launch checkout modal using official Youpi.pay() SDK
-        window.Youpi.pay({
+        const paySdk = window.ZayaPayCheckout || window.YoupiCheckout || window.Youpi || window.ZayaPay;
+        if (!paySdk || typeof paySdk.pay !== 'function') {
+          // Direct fallback if SDK script not loaded
+          window.location.href = checkoutUrl;
+          return;
+        }
+
+        paySdk.pay({
           checkoutUrl: checkoutUrl,
           paymentId: paymentId,
           order_id: orderId,
@@ -1794,25 +1804,32 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
           currency: 'INR',
           name: 'ZAYAPAY Store',
           description: 'ZAYAPAY Enterprise Suite Top-Up',
-          successUrl: `/order-success?order_id=${encodeURIComponent(orderId)}&amount=${encodeURIComponent(currentAmount)}`,
-          failedUrl: `/order-failed?order_id=${encodeURIComponent(data.orderId)}`,
-          suspiciousUrl: `/order-suspicious?order_id=${encodeURIComponent(data.orderId)}`,
-          expiredUrl: `/order-expired?order_id=${encodeURIComponent(data.orderId)}`,
-          cancelledUrl: `/order-cancelled?order_id=${encodeURIComponent(data.orderId)}`,
+          successUrl: `/order-success?order_id=${encodeURIComponent(orderId)}&amount=${encodeURIComponent(currentAmount.toFixed(2))}&mode=UPI`,
+          failedUrl: `/order-failed?order_id=${encodeURIComponent(orderId)}`,
+          suspiciousUrl: `/order-suspicious?order_id=${encodeURIComponent(orderId)}`,
+          expiredUrl: `/order-expired?order_id=${encodeURIComponent(orderId)}`,
+          cancelledUrl: `/order-cancelled?order_id=${encodeURIComponent(orderId)}`,
           handler: function(paymentResponse) {
-            btn.disabled = false;
-            btn.innerHTML = oldHtml;
-            showCelebrationModal(data.orderId, paymentResponse.utr || paymentResponse.paymentId || data.paymentId, currentAmount);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = oldHtml;
+            }
+            const verifiedUtr = paymentResponse?.utr || paymentResponse?.paymentId || paymentId;
+            showCelebrationModal(orderId, verifiedUtr, currentAmount);
           },
           onClose: function() {
-            btn.disabled = false;
-            btn.innerHTML = oldHtml;
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = oldHtml;
+            }
           }
         });
       } catch (err) {
-        alert('Error launching ZAYAPAY Gateway: ' + err.message);
-        btn.disabled = false;
-        btn.innerHTML = oldHtml;
+        console.error('Error launching ZAYAPAY Gateway:', err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldHtml;
+        }
       }
     }
 

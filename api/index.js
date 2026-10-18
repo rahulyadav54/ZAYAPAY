@@ -140,6 +140,13 @@ export default async function handler(req, res) {
   const incomingPath = req.headers['x-forwarded-url'] || req.headers['x-matched-path'] || req.url;
   const url = new URL(incomingPath, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
+  let decodedPath = '';
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch {
+    decodedPath = pathname;
+  }
+  const cleanPath = decodedPath.toLowerCase().replace(/[\s_%20]+/g, '-').replace(/\/+$/, '') || '/';
   const method = req.method.toUpperCase();
 
   // CORS preflight
@@ -154,14 +161,14 @@ export default async function handler(req, res) {
   }
 
   // 1. Health check
-  if (pathname === '/health') {
+  if (pathname === '/health' || cleanPath === '/health' || cleanPath === '/api/health' || pathname === '/api/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'UP', app: 'ZAYAPAY', mode: 'serverless' }));
     return;
   }
 
   // 2. Demo Storefront: GET / and /store
-  if (pathname === '/' || pathname === '/store') {
+  if (cleanPath === '/' || cleanPath === '/store' || pathname === '/' || pathname === '/store') {
     let html = readTemplate('index.html') || readTemplate('store.html');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -169,7 +176,7 @@ export default async function handler(req, res) {
   }
 
   // 3. Customer Wallet: GET /wallet
-  if (pathname === '/wallet' || pathname === '/wallet.html') {
+  if (cleanPath === '/wallet' || cleanPath === '/wallet.html' || pathname === '/wallet' || pathname === '/wallet.html') {
     let html = readTemplate('wallet.html');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -178,7 +185,15 @@ export default async function handler(req, res) {
 
   // 4. Standardized Outcome Pages
   // 4a. Success Outcome
-  if (pathname === '/order-success' || pathname === '/success' || pathname === '/order-success.html') {
+  if (
+    cleanPath === '/order-success' ||
+    cleanPath === '/success' ||
+    cleanPath === '/ordersuccess' ||
+    cleanPath === '/order-success.html' ||
+    pathname === '/order-success' ||
+    pathname === '/success' ||
+    pathname === '/order-success.html'
+  ) {
     let html = readTemplate('order-success.html');
     const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-SUCCESS-TEST';
     const amount = url.searchParams.get('amount') || '499.00';
@@ -199,7 +214,15 @@ export default async function handler(req, res) {
   }
 
   // 4b. Failed Outcome
-  if (pathname === '/order-failed' || pathname === '/failed' || pathname === '/order-failed.html') {
+  if (
+    cleanPath === '/order-failed' ||
+    cleanPath === '/failed' ||
+    cleanPath === '/orderfailed' ||
+    cleanPath === '/order-failed.html' ||
+    pathname === '/order-failed' ||
+    pathname === '/failed' ||
+    pathname === '/order-failed.html'
+  ) {
     let html = readTemplate('order-failed.html');
     const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-FAILED-TEST';
     const reason = url.searchParams.get('reason') || 'Transaction verification timed out or declined.';
@@ -215,7 +238,15 @@ export default async function handler(req, res) {
   }
 
   // 4c. Suspicious / Review Outcome
-  if (pathname === '/order-suspicious' || pathname === '/suspicious' || pathname === '/order-suspicious.html') {
+  if (
+    cleanPath === '/order-suspicious' ||
+    cleanPath === '/suspicious' ||
+    cleanPath === '/ordersuspicious' ||
+    cleanPath === '/order-suspicious.html' ||
+    pathname === '/order-suspicious' ||
+    pathname === '/suspicious' ||
+    pathname === '/order-suspicious.html'
+  ) {
     let html = readTemplate('order-suspicious.html');
     const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-SUSPICIOUS-TEST';
     let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
@@ -226,7 +257,15 @@ export default async function handler(req, res) {
   }
 
   // 4d. Expired Outcome
-  if (pathname === '/order-expired' || pathname === '/expired' || pathname === '/order-expired.html') {
+  if (
+    cleanPath === '/order-expired' ||
+    cleanPath === '/expired' ||
+    cleanPath === '/orderexpired' ||
+    cleanPath === '/order-expired.html' ||
+    pathname === '/order-expired' ||
+    pathname === '/expired' ||
+    pathname === '/order-expired.html'
+  ) {
     let html = readTemplate('order-expired.html');
     const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-EXPIRED-TEST';
     let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
@@ -237,7 +276,15 @@ export default async function handler(req, res) {
   }
 
   // 4e. Cancelled Outcome
-  if (pathname === '/order-cancelled' || pathname === '/cancelled' || pathname === '/order-cancelled.html') {
+  if (
+    cleanPath === '/order-cancelled' ||
+    cleanPath === '/cancelled' ||
+    cleanPath === '/ordercancelled' ||
+    cleanPath === '/order-cancelled.html' ||
+    pathname === '/order-cancelled' ||
+    pathname === '/cancelled' ||
+    pathname === '/order-cancelled.html'
+  ) {
     let html = readTemplate('order-cancelled.html');
     const orderId = url.searchParams.get('order_id') || url.searchParams.get('orderId') || 'ORD-CANCELLED-TEST';
     let rendered = html.replaceAll('{{ORDER_ID}}', orderId);
@@ -319,14 +366,32 @@ export default async function handler(req, res) {
   }
 
   // 7. Merchant Admin Hub: /admin and /admin/*
-  if (pathname === '/admin' || pathname === '/admin/' || pathname.startsWith('/admin')) {
+  if (cleanPath === '/admin' || cleanPath.startsWith('/admin') || pathname === '/admin' || pathname.startsWith('/admin')) {
     const adminHtml = adminPortal.renderHtml();
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(adminHtml);
     return;
   }
 
-  // 8. Checkout Portal: /checkout/:id/qr.svg
+  // 8. Checkout Demo Route: /checkout/demo
+  if (cleanPath === '/checkout/demo' || pathname === '/checkout/demo') {
+    const demoHtml = readTemplate('checkout/demo.html') || checkoutPortal.renderHtml('demo', {
+      id: 'demo',
+      orderId: url.searchParams.get('orderId') || 'COIN-ORD-DEMO',
+      amount: url.searchParams.get('amount') || '1.00',
+      currency: 'INR',
+      status: 'ACTIVE',
+      payeeVpa: 'zayacodehub@okhdfcbank',
+      payeeName: 'ZAYA CODE HUB',
+      merchantName: 'ZAYA CODE HUB',
+      branding: { appName: 'ZAYAPAY', primaryColor: '#0b63e5' }
+    });
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(demoHtml);
+    return;
+  }
+
+  // 9. Checkout Portal: /checkout/:id/qr.svg
   const qrMatch = pathname.match(/^\/checkout\/([^/]+)\/qr\.svg$/);
   if (qrMatch) {
     const paymentId = qrMatch[1];
@@ -346,7 +411,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 9. Checkout Portal: /checkout/:id
+  // 10. Checkout Portal: /checkout/:id
   const checkoutMatch = pathname.match(/^\/checkout\/([^/]+)$/);
   if (checkoutMatch) {
     const paymentId = checkoutMatch[1];
@@ -357,8 +422,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 10. Gateway REST API: /api/*
-  if (pathname.startsWith('/api/')) {
+  // 11. Gateway REST API: /api/*
+  if (pathname.startsWith('/api/') || cleanPath.startsWith('/api/')) {
     return dispatchApi(req, res);
   }
 

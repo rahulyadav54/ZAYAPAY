@@ -187,15 +187,13 @@
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  if (params.get('order_id') || params.get('orderId')) {
-    const oId = params.get('order_id') || params.get('orderId');
-    const el = document.getElementById('valOrderId');
-    if (el && (el.textContent === '{{ORDER_ID}}' || !el.textContent)) el.textContent = oId;
-  }
-  if (params.get('reason')) {
-    const el = document.getElementById('valReason');
-    if (el && (el.textContent === '{{REASON}}' || !el.textContent)) el.textContent = params.get('reason');
-  }
+  const oId = params.get('order_id') || params.get('orderId') || 'ORD-FAILED-TEST';
+  const elOrderId = document.getElementById('valOrderId');
+  if (elOrderId) elOrderId.textContent = oId;
+
+  const reason = params.get('reason') || 'Transaction verification timed out or declined.';
+  const elReason = document.getElementById('valReason');
+  if (elReason) elReason.textContent = reason;
 </script>
 
 </body>

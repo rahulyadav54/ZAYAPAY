@@ -9,9 +9,17 @@
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/checkout/(.*)", "destination": "/api" },
-    { "source": "/admin(.*)", "destination": "/api" },
-    { "source": "/health", "destination": "/api" }
+    { "source": "/order%20success(.*)", "destination": "/order-success$1" },
+    { "source": "/order success(.*)", "destination": "/order-success$1" },
+    { "source": "/order_success(.*)", "destination": "/order-success$1" },
+    { "source": "/ordersuccess(.*)", "destination": "/order-success$1" },
+    { "source": "/order%20failed(.*)", "destination": "/order-failed$1" },
+    { "source": "/order failed(.*)", "destination": "/order-failed$1" },
+    { "source": "/order_failed(.*)", "destination": "/order-failed$1" },
+    { "source": "/orderfailed(.*)", "destination": "/order-failed$1" },
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/checkout/(.*)", "destination": "/api/index.js" },
+    { "source": "/admin(.*)", "destination": "/api/index.js" },
+    { "source": "/health", "destination": "/api/index.js" }
   ]
 }

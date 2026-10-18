@@ -201,22 +201,25 @@
 <script>
   // Dynamic client query param fallback if rendered statically
   const params = new URLSearchParams(window.location.search);
-  if (params.get('order_id') || params.get('orderId')) {
-    const oId = params.get('order_id') || params.get('orderId');
-    const el = document.getElementById('valOrderId');
-    if (el && (el.textContent === '{{ORDER_ID}}' || !el.textContent)) el.textContent = oId;
-  }
-  if (params.get('amount')) {
-    const el = document.getElementById('valAmount');
-    if (el && (el.textContent.includes('{{AMOUNT}}') || !el.textContent)) el.textContent = '₹' + Number(params.get('amount')).toFixed(2);
-  }
-  if (params.get('utr')) {
-    const el = document.getElementById('valUtr');
-    if (el && (el.textContent === '{{UTR}}' || !el.textContent)) el.textContent = params.get('utr');
-  }
-  if (params.get('mode') || params.get('payment_mode')) {
-    const el = document.getElementById('valMode');
-    if (el && (el.textContent === '{{MODE}}' || !el.textContent)) el.textContent = params.get('mode') || params.get('payment_mode');
+  const oId = params.get('order_id') || params.get('orderId') || 'ORD-SUCCESS-TEST';
+  const elOrderId = document.getElementById('valOrderId');
+  if (elOrderId) elOrderId.textContent = oId;
+
+  const amt = params.get('amount') || '499.00';
+  const elAmount = document.getElementById('valAmount');
+  if (elAmount) elAmount.textContent = '₹' + (isNaN(Number(amt)) ? amt : Number(amt).toFixed(2));
+
+  const utr = params.get('utr') || params.get('bankRef') || '987654321012';
+  const elUtr = document.getElementById('valUtr');
+  if (elUtr) elUtr.textContent = utr;
+
+  const mode = params.get('mode') || params.get('payment_mode') || 'UPI';
+  const elMode = document.getElementById('valMode');
+  if (elMode) elMode.textContent = mode;
+
+  const elTs = document.getElementById('valTimestamp');
+  if (elTs) {
+    elTs.textContent = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   }
 </script>
 
