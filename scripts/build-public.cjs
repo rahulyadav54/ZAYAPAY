@@ -82,12 +82,12 @@ if (fs.existsSync(viewCheckout)) {
     .replaceAll('{{PAYEE_VPA}}', 'zayacodehub@okhdfcbank')
     .replaceAll('{{VPA}}', 'zayacodehub@okhdfcbank')
     .replaceAll('{{AMOUNT}}', '1.00')
-    .replaceAll('{{ORDER_ID}}', 'COIN-ORD-DEMO')
-    .replaceAll('{{PAYMENT_ID}}', 'COIN-ORD-DEMO')
+    .replaceAll('{{ORDER_ID}}', 'ORD-ZAYA-LIVE')
+    .replaceAll('{{PAYMENT_ID}}', 'ORD-ZAYA-LIVE')
     .replaceAll('{{CURRENCY}}', 'INR')
     .replaceAll('{{API_BASE_URL}}', '')
     .replaceAll('{{SERVER_HEALTH_CLASS}}', 'is-working')
-    .replaceAll('{{SERVER_HEALTH_LABEL}}', 'Server Is Working')
+    .replaceAll('{{SERVER_HEALTH_LABEL}}', 'Server Live & Active')
     .replaceAll('{{DOWNTIME_ALERT_STYLE}}', 'none')
     .replaceAll('{{DOWNTIME_ALERT_CLASS}}', 'ypg-downtime-alert')
     .replaceAll('{{DOWNTIME_HEADING}}', '')
@@ -105,8 +105,8 @@ if (fs.existsSync(viewCheckout)) {
     .replaceAll('{{SIDEBAR_NOTICE}}', 'Fast & Secure 256-Bit Encrypted Payments')
     .replaceAll('{{LOGO_URL}}', '')
     .replaceAll('{{INITIAL_STATE_JSON}}', JSON.stringify({
-      id: 'COIN-ORD-DEMO',
-      orderId: 'COIN-ORD-DEMO',
+      id: 'ORD-ZAYA-LIVE',
+      orderId: 'ORD-ZAYA-LIVE',
       amount: '1.00',
       currency: 'INR',
       status: 'ACTIVE',
@@ -114,7 +114,7 @@ if (fs.existsSync(viewCheckout)) {
       payeeName: 'ZAYA CODE HUB',
       payeeVpa: 'zayacodehub@okhdfcbank',
       merchantName: 'ZAYA CODE HUB',
-      upiServerIndicator: { status: 'WORKING', tier: 'GREEN', label: 'Server Is Working' },
+      upiServerIndicator: { status: 'WORKING', tier: 'GREEN', label: 'Server Live & Active' },
       branding: { appName: 'ZAYAPAY', primaryColor: '#0b63e5' }
     }));
 

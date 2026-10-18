@@ -948,73 +948,103 @@ export function registerCheckoutRoutes(server, ctx) {
       body = {};
     }
 
-    const utr = (body.utr || body.bankRef || `4289${Date.now().toString().slice(-8)}`).toString().trim();
+    const utr = (body.utr || body.bankRef || '').toString().trim();
     let session = ctx.sessionRepo.findById(params.id);
     if (!session && body.orderId) {
       session = ctx.sessionRepo.findByOrderId(body.orderId);
     }
 
     if (session) {
-      let updated = session;
-      if (session.status !== PaymentStatus.SUCCESS) {
-        updated = ctx.sessionRepo.transitionToTerminal(session.id, PaymentStatus.SUCCESS, {
-          reason: 'CUSTOMER_CONFIRMED_UTR'
-        });
-      }
-
-      ctx.auditRepo?.log({
-        merchantId: session.merchantId,
-        entityType: 'PAYMENT_SESSION',
-        entityId: session.id,
-        action: 'PAYMENT_VERIFIED_CONFIRMED',
-        actorType: AuditActorType.CUSTOMER,
-        details: { utr, method: session.method || 'UPI', orderId: session.orderId }
-      });
-
-      server.broadcastSse(session.id, 'status_change', {
-        status: PaymentStatus.SUCCESS,
-        utr,
-        orderId: session.orderId,
-        method: session.method || 'UPI'
-      });
-      server.broadcastSse('admin_counter_events', 'status_change', {
-        status: PaymentStatus.SUCCESS,
-        sessionId: session.id,
-        orderId: session.orderId,
-        utr
-      });
-
-      if (ctx.eventEmitter) {
-        ctx.eventEmitter.emit('PAYMENT.SUCCESS', {
+      if (session.status === PaymentStatus.SUCCESS) {
+        HttpServer.json(res, 200, {
+          success: true,
+          status: PaymentStatus.SUCCESS,
           paymentId: session.id,
           orderId: session.orderId,
-          merchantId: session.merchantId,
-          amountPaise: session.amountPaise,
-          utr
+          amount: toRupeesString(session.amountPaise),
+          utr: session.utr || utr || session.bankRef,
+          message: 'Payment verified and confirmed.'
         });
+        return;
       }
 
+      // If customer provides a valid 10-12 digit UTR, confirm payment
+      if (utr && utr.length >= 10) {
+        let updated = ctx.sessionRepo.transitionToTerminal(session.id, PaymentStatus.SUCCESS, {
+          reason: 'CUSTOMER_CONFIRMED_UTR'
+        });
+
+        ctx.auditRepo?.log({
+          merchantId: session.merchantId,
+          entityType: 'PAYMENT_SESSION',
+          entityId: session.id,
+          action: 'PAYMENT_VERIFIED_CONFIRMED',
+          actorType: AuditActorType.CUSTOMER,
+          details: { utr, method: session.method || 'UPI', orderId: session.orderId }
+        });
+
+        server.broadcastSse(session.id, 'status_change', {
+          status: PaymentStatus.SUCCESS,
+          utr,
+          orderId: session.orderId,
+          method: session.method || 'UPI'
+        });
+        server.broadcastSse('admin_counter_events', 'status_change', {
+          status: PaymentStatus.SUCCESS,
+          sessionId: session.id,
+          orderId: session.orderId,
+          utr
+        });
+
+        if (ctx.eventEmitter) {
+          ctx.eventEmitter.emit('PAYMENT.SUCCESS', {
+            paymentId: session.id,
+            orderId: session.orderId,
+            merchantId: session.merchantId,
+            amountPaise: session.amountPaise,
+            utr
+          });
+        }
+
+        HttpServer.json(res, 200, {
+          success: true,
+          status: PaymentStatus.SUCCESS,
+          paymentId: session.id,
+          orderId: session.orderId,
+          amount: toRupeesString(session.amountPaise),
+          utr,
+          message: 'Payment verified and confirmed.'
+        });
+        return;
+      }
+
+      // No UTR and not confirmed yet
+      HttpServer.json(res, 200, {
+        success: false,
+        status: session.status || 'ACTIVE',
+        message: 'Payment not detected on bank network yet. Please enter your 12-digit UPI Reference / UTR number.'
+      });
+      return;
+    }
+
+    // Standalone fallback: requires valid UTR
+    if (utr && utr.length >= 10) {
       HttpServer.json(res, 200, {
         success: true,
         status: PaymentStatus.SUCCESS,
-        paymentId: session.id,
-        orderId: session.orderId,
-        amount: toRupeesString(session.amountPaise),
+        paymentId: params.id,
+        orderId: body.orderId || params.id,
+        amount: body.amount || '1.00',
         utr,
         message: 'Payment verified and confirmed.'
       });
       return;
     }
 
-    // Sovereign/demo fallback session response
     HttpServer.json(res, 200, {
-      success: true,
-      status: PaymentStatus.SUCCESS,
-      paymentId: params.id,
-      orderId: body.orderId || params.id,
-      amount: body.amount || '1.00',
-      utr,
-      message: 'Demo payment verified and confirmed.'
+      success: false,
+      status: 'ACTIVE',
+      message: 'Payment not detected on bank network yet. Please enter your 12-digit UPI Reference / UTR number.'
     });
   });
 

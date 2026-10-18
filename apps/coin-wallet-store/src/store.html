@@ -967,7 +967,7 @@
 
   <!-- TOP ANNOUNCEMENT BAR -->
   <div class="top-announcement">
-    <span>✨ <strong>ZAYAPAY Gateway</strong> Demo Powered by ZAYAPAY</span>
+    <span>✨ <strong>ZAYAPAY Enterprise Gateway</strong> · Direct Bank Settlement · 0% Deductions</span>
     <span style="opacity:0.4;">|</span>
     <span>Zero Platform Fees · Direct P2P UPI Settlement</span>
   </div>
@@ -979,11 +979,11 @@
         <div class="brand-logo-badge">⚡</div>
         <div class="brand-text">
           <span class="brand-title">ZAYAPAY Store</span>
-          <span class="brand-subtitle">Official Payment Gateway Demo</span>
+          <span class="brand-subtitle">Enterprise Payment Gateway Suite</span>
         </div>
       </a>
       <nav style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-        <a href="#purchase" class="btn-admin-link">🛒 Buy Demo Pack</a>
+        <a href="#purchase" class="btn-admin-link">⚡ Live Checkout</a>
         <a href="/event-registration.html" class="btn-admin-link" style="background:#f0fdf4; color:#15803d; border-color:#bbf7d0; font-weight:800;">🎟️ Event Registration Fee</a>
         <a href="#outcome-pages" class="btn-admin-link">🚦 Outcome Pages</a>
         <a href="#developer-guide" class="btn-admin-link" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;">📖 Developer Guide</a>
@@ -1039,14 +1039,14 @@
         <div class="buy-box-card" id="purchase">
           <div class="pricing-header">
             <div>
-              <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Live Demo Checkout Price</span>
+              <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Order Total / Settlement</span>
               <div class="price-main" id="displayPrice">₹1.00</div>
             </div>
             <span class="price-badge-demo">1-Tap Live Checkout</span>
           </div>
 
           <p class="pricing-note">
-            Test real end-to-end payment gateway execution. Default is <strong>₹1.00</strong> for instant testing, or select/type any custom amount:
+            Direct NPCI bank settlement to verified merchant account. Pay default <strong>₹1.00</strong> or enter any custom amount:
           </p>
 
           <!-- Quick Preset Chips -->
@@ -1054,7 +1054,7 @@
             <span>Quick Select Test Amount</span>
           </div>
           <div class="amount-selector-chips">
-            <button type="button" class="chip-btn active" onclick="selectAmount(1.00, this)">₹1 (Demo)</button>
+            <button type="button" class="chip-btn active" onclick="selectAmount(1.00, this)">₹1.00</button>
             <button type="button" class="chip-btn" onclick="selectAmount(10.00, this)">₹10</button>
             <button type="button" class="chip-btn" onclick="selectAmount(100.00, this)">₹100</button>
             <button type="button" class="chip-btn" onclick="selectAmount(499.00, this)">₹499</button>
@@ -1458,7 +1458,7 @@
             </p>
           </div>
           <a href="/event-registration.html" style="display:inline-flex; align-items:center; gap:0.5rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; font-size:0.85rem; font-weight:800; padding:0.6rem 1.2rem; border-radius:10px; text-decoration:none; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
-            <span>🎟️ View Live Event Portal Demo →</span>
+            <span>🎟️ Open Event Registration Portal →</span>
           </a>
         </div>
 
@@ -1678,7 +1678,7 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
         <div class="brand-logo-badge">⚡</div>
         <div>
           <div style="font-family:'Outfit', sans-serif; font-size:1.2rem; font-weight:800; color:#ffffff;">ZAYAPAY Store</div>
-          <div style="font-size:0.75rem; color:#94a3b8;">Official Demo Store &amp; E-Commerce Gateway Showcase</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Official Production Store &amp; E-Commerce Gateway</div>
         </div>
       </div>
       <div style="font-size:0.8rem; color:#94a3b8;">
@@ -1876,8 +1876,8 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
           order_id: orderId,
           amount: currentAmount,
           currency: 'INR',
-          name: 'ZAYAPAY Store',
-          description: 'ZAYAPAY Enterprise Suite Top-Up',
+          name: 'ZAYA CODE HUB',
+          description: 'Production Order Payment',
           successUrl: `/order-success?order_id=${encodeURIComponent(orderId)}&amount=${encodeURIComponent(currentAmount.toFixed(2))}&mode=UPI`,
           failedUrl: `/order-failed?order_id=${encodeURIComponent(orderId)}`,
           suspiciousUrl: `/order-suspicious?order_id=${encodeURIComponent(orderId)}`,
@@ -2104,7 +2104,7 @@ ${link}
         name: name,
         description: desc,
         customer: {
-          name: 'Demo Attendee',
+          name: 'Registered Customer',
           phone: phone,
           email: 'attendee@example.com'
         },

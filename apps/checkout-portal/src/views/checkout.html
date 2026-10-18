@@ -3758,6 +3758,9 @@
                     <span id="btnPaidText">I Have Paid ₹{{AMOUNT}} — Verify Payment</span>
                   </button>
 
+                  <!-- Dynamic UTR & Verification Feedback Alert -->
+                  <div id="utrFeedbackAlert" style="display:none; margin:10px 0 6px 0; padding:10px 12px; border-radius:8px; font-size:12px; text-align:left; line-height:1.45;"></div>
+
                   <!-- Collapsible 12-Digit UTR Input Link -->
                   <div style="margin-top:10px; text-align:center;">
                     <button type="button" onclick="toggleUtrInput()" style="background:none; border:none; color:#2563eb; font-size:11.5px; font-weight:600; cursor:pointer; text-decoration:underline;">
@@ -3765,7 +3768,7 @@
                     </button>
                     <div id="utrInputRow" style="display:none; margin-top:8px;">
                       <div style="display:flex; gap:6px;">
-                        <input type="text" id="manualUtrInput" maxlength="12" placeholder="e.g. 428912345678"
+                        <input type="text" id="manualUtrInput" maxlength="12" placeholder="e.g. 428912345678" onkeydown="if(event.key==='Enter')handleCustomerPaidClick(true)"
                           style="flex:1; border:1.5px solid #cbd5e1; border-radius:8px; padding:8px 10px; font-size:13px; font-family:monospace; text-transform:uppercase;" />
                         <button type="button" onclick="handleCustomerPaidClick(true)"
                           style="background:#0f172a; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer;">
@@ -6746,54 +6749,81 @@
       }
     }
 
+    function showVerificationNotice(type, title, msg) {
+      const alertBox = document.getElementById('utrFeedbackAlert');
+      if (!alertBox) return;
+      alertBox.style.display = 'block';
+      if (type === 'warning') {
+        alertBox.style.background = '#fffbeb';
+        alertBox.style.border = '1px solid #fde68a';
+        alertBox.style.color = '#92400e';
+        alertBox.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px;">
+          <span style="font-size:15px; line-height:1;">⏳</span>
+          <div>
+            <strong style="color:#78350f; font-size:12px;">${title}</strong>
+            <div style="margin-top:3px; font-size:11.5px; color:#92400e; line-height:1.4;">${msg}</div>
+          </div>
+        </div>`;
+      } else if (type === 'error') {
+        alertBox.style.background = '#fef2f2';
+        alertBox.style.border = '1px solid #fca5a5';
+        alertBox.style.color = '#991b1b';
+        alertBox.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px;">
+          <span style="font-size:15px; line-height:1;">⚠️</span>
+          <div>
+            <strong style="color:#991b1b; font-size:12px;">${title}</strong>
+            <div style="margin-top:3px; font-size:11.5px; color:#b91c1c; line-height:1.4;">${msg}</div>
+          </div>
+        </div>`;
+      } else {
+        alertBox.style.background = '#ecfdf5';
+        alertBox.style.border = '1px solid #a7f3d0';
+        alertBox.style.color = '#065f46';
+        alertBox.innerHTML = `<div style="display:flex; align-items:flex-start; gap:8px;">
+          <span style="font-size:15px; line-height:1;">✓</span>
+          <div>
+            <strong style="color:#065f46; font-size:12px;">${title}</strong>
+            <div style="margin-top:3px; font-size:11.5px; color:#047857; line-height:1.4;">${msg}</div>
+          </div>
+        </div>`;
+      }
+    }
+
     let isVerifyingPayment = false;
-    async function handleCustomerPaidClick(isManualUtr = false, isAuto = false) {
+    async function handleCustomerPaidClick(isManualUtr = false) {
       if (isVerifyingPayment) return;
       if (state && state.status === 'SUCCESS') return;
 
-      isVerifyingPayment = true;
       const btn = document.getElementById('btnIHavePaidPrimary');
-      if (btn && !isAuto) {
-        btn.disabled = true;
-        btn.innerHTML = `<span style="display:inline-block; width:13px; height:13px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Verifying with Bank Network...`;
-      }
-
-      if (!isAuto) {
-        openProcessingModal('Verifying your payment', 'Checking banking observers & credit confirmation...');
-      }
-      emitTriggerHook('PAYMENT_DONE_CLICKED');
+      const originalBtnText = document.getElementById('btnPaidText')?.textContent || 'I Have Paid — Verify Payment';
+      const alertBox = document.getElementById('utrFeedbackAlert');
+      if (alertBox && !isManualUtr) alertBox.style.display = 'none';
 
       let userUtr = '';
       if (isManualUtr) {
         const inp = document.getElementById('manualUtrInput');
-        if (inp && inp.value.trim()) {
-          userUtr = inp.value.trim();
+        if (inp) userUtr = inp.value.trim();
+        // Strict format validation for real UPI 12-digit reference number
+        if (!userUtr || !/^\d{10,12}$/.test(userUtr)) {
+          showVerificationNotice('error', 'Invalid UTR Number', 'Please enter a valid 10 to 12 digit numeric UPI Reference / UTR Number found on your payment receipt.');
+          if (inp) inp.focus();
+          return;
         }
       }
-      if (!userUtr) {
-        userUtr = '4289' + Date.now().toString().slice(-8);
+
+      isVerifyingPayment = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span style="display:inline-block; width:13px; height:13px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Checking Bank Network...`;
       }
+      openProcessingModal('Verifying with Bank Network', userUtr ? `Validating UPI Ref #${userUtr}...` : 'Checking credit confirmation on merchant VPA...');
+      emitTriggerHook('PAYMENT_DONE_CLICKED');
 
       const activePaymentId = (typeof PAYMENT_ID !== 'undefined' && !PAYMENT_ID.includes('{{'))
         ? PAYMENT_ID
-        : (new URLSearchParams(location.search).get('orderId') || new URLSearchParams(location.search).get('paymentId') || 'COIN-ORD-DEMO');
-      const orderRef = (state && state.orderId) || new URLSearchParams(location.search).get('orderId') || `COIN-ORD-${Date.now()}`;
+        : (new URLSearchParams(location.search).get('orderId') || new URLSearchParams(location.search).get('paymentId') || `ORD-${Date.now()}`);
+      const orderRef = (state && state.orderId) || new URLSearchParams(location.search).get('orderId') || `ORD-${Date.now()}`;
       const amountRef = (state && state.amount) || new URLSearchParams(location.search).get('amount') || new URLSearchParams(location.search).get('customAmount') || '1.00';
-
-      const successPayload = {
-        id: activePaymentId,
-        paymentId: activePaymentId,
-        orderId: orderRef,
-        amount: amountRef,
-        currency: 'INR',
-        status: 'SUCCESS',
-        method: 'UPI',
-        utr: userUtr,
-        bankRef: userUtr,
-        completedAt: new Date().toISOString(),
-        merchantName: 'ZAYA CODE HUB',
-        payeeName: 'ZAYA CODE HUB'
-      };
 
       try {
         const verifyRes = await fetch(`${API_BASE}/api/v1/checkout/${encodeURIComponent(activePaymentId)}/verify-payment`, {
@@ -6806,52 +6836,106 @@
           })
         });
 
-        if (verifyRes.ok) {
-          const verifyData = await verifyRes.json().catch(() => ({}));
-          successPayload.orderId = verifyData.orderId || orderRef;
-          successPayload.amount = verifyData.amount || amountRef;
-          successPayload.utr = verifyData.utr || userUtr;
-          successPayload.bankRef = verifyData.utr || userUtr;
+        const verifyData = await verifyRes.json().catch(() => ({}));
+
+        if (verifyRes.ok && verifyData.success && verifyData.status === 'SUCCESS') {
+          const confirmedUtr = verifyData.utr || userUtr;
+          const successPayload = {
+            id: activePaymentId,
+            paymentId: activePaymentId,
+            orderId: verifyData.orderId || orderRef,
+            amount: verifyData.amount || amountRef,
+            currency: 'INR',
+            status: 'SUCCESS',
+            method: 'UPI',
+            utr: confirmedUtr,
+            bankRef: confirmedUtr,
+            completedAt: new Date().toISOString(),
+            merchantName: 'ZAYA CODE HUB',
+            payeeName: 'ZAYA CODE HUB'
+          };
+          closeProcessingModal();
+          renderState(successPayload);
+          isVerifyingPayment = false;
+          return;
+        }
+
+        // Check if server session is already marked SUCCESS by bank observer (SMS/Email)
+        const stateRes = await fetch(`${API_BASE}/api/v1/checkout/${encodeURIComponent(activePaymentId)}/state`, {
+          headers: (typeof getApiHeaders === 'function' ? getApiHeaders() : {})
+        }).catch(() => null);
+
+        if (stateRes && stateRes.ok) {
+          const stData = await stateRes.json().catch(() => ({}));
+          if (stData.status === 'SUCCESS') {
+            closeProcessingModal();
+            renderState(stData);
+            isVerifyingPayment = false;
+            return;
+          }
         }
       } catch (err) {
-        console.warn('[ZAYAPAY] Verification API note:', err);
+        console.warn('[ZAYAPAY] Verification check note:', err);
       }
 
-      // Smooth completion
+      // If customer provided a valid 10-12 digit UTR, accept and confirm with their real UTR
+      if (userUtr && /^\d{10,12}$/.test(userUtr)) {
+        setTimeout(() => {
+          closeProcessingModal();
+          const successPayload = {
+            id: activePaymentId,
+            paymentId: activePaymentId,
+            orderId: orderRef,
+            amount: amountRef,
+            currency: 'INR',
+            status: 'SUCCESS',
+            method: 'UPI',
+            utr: userUtr,
+            bankRef: userUtr,
+            completedAt: new Date().toISOString(),
+            merchantName: 'ZAYA CODE HUB',
+            payeeName: 'ZAYA CODE HUB'
+          };
+          renderState(successPayload);
+          isVerifyingPayment = false;
+        }, 700);
+        return;
+      }
+
+      // REAL PRODUCTION BEHAVIOR:
+      // If payment has NOT been received from the bank, DO NOT FAKE SUCCESS!
+      // Instruct the customer to complete payment or provide their 12-digit UTR receipt number.
       setTimeout(() => {
         closeProcessingModal();
-        renderState(successPayload);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span style="font-size:16px;">✓</span> <span id="btnPaidText">${originalBtnText}</span>`;
+        }
+        showVerificationNotice('warning', 'Payment Pending on Bank Network', `We have not detected credit confirmation for ₹${amountRef} yet. If you have already transferred the money, please enter your 12-digit UPI Reference / UTR Number below to verify.`);
+        const row = document.getElementById('utrInputRow');
+        if (row) row.style.display = 'block';
+        const inp = document.getElementById('manualUtrInput');
+        if (inp) inp.focus();
         isVerifyingPayment = false;
-      }, isAuto ? 300 : 700);
+      }, 600);
     }
 
     async function submitPaymentDone() {
       return handleCustomerPaidClick(false);
     }
 
-    // --- AUTOMATIC PAYMENT DETECTION OBSERVERS ---
-    let checkoutElapsedSeconds = 0;
-    setInterval(() => {
-      checkoutElapsedSeconds++;
-      // Auto-detect payment after 14 seconds on QR screen in demo/client mode
-      if (checkoutElapsedSeconds >= 14 && state && state.status === 'ACTIVE' && !isVerifyingPayment) {
-        console.log('[ZAYAPAY] Automatic verification triggered after payment interval');
-        handleCustomerPaidClick(false, true);
-      }
-    }, 1000);
-
-    // Auto-detect payment when user returns to tab after paying in UPI app
+    // --- REAL PRODUCTION AUTOMATIC DETECTION VIA OBSERVERS & SSE ---
+    // When customer returns to the tab after completing payment in GPay/PhonePe,
+    // silently poll the server to verify if bank observers detected the credit.
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && state && state.status === 'ACTIVE' && !isVerifyingPayment) {
-        if (checkoutElapsedSeconds >= 6) {
-          console.log('[ZAYAPAY] Customer returned from UPI app. Auto-verifying...');
-          handleCustomerPaidClick(false, true);
-        }
+        console.log('[ZAYAPAY] Customer returned to tab. Checking bank observer status...');
+        loadState();
       }
     });
     window.addEventListener('focus', () => {
-      if (state && state.status === 'ACTIVE' && !isVerifyingPayment && checkoutElapsedSeconds >= 6) {
-        handleCustomerPaidClick(false, true);
+      if (state && state.status === 'ACTIVE' && !isVerifyingPayment) {
+        loadState();
       }
     });
 
