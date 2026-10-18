@@ -426,10 +426,13 @@ export default async function handler(req, res) {
   if (qrMatch) {
     const paymentId = qrMatch[1];
     const state = await stateFetcher(paymentId);
-    const payeeVpa = state?.payeeVpa || 'zayacodehub@okhdfcbank';
-    const payeeName = state?.payeeName || 'ZAYA CODE HUB';
-    const amount = state?.amount || '1.00';
-    const upiUri = state?.upiUri || `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(paymentId)}`;
+    const payeeVpa = url.searchParams.get('vpa') || state?.payeeVpa || 'zayacodehub@okhdfcbank';
+    const payeeName = url.searchParams.get('name') || state?.payeeName || 'ZAYA CODE HUB';
+    const queryAmt = url.searchParams.get('amount') || url.searchParams.get('customAmount');
+    const rawAmt = queryAmt || state?.amount || '100.00';
+    const numAmt = parseFloat(rawAmt.toString().replace(/[^0-9.]/g, '')) || 100.0;
+    const exactAmount = numAmt.toFixed(2);
+    const upiUri = (state?.upiUri && !queryAmt) ? state.upiUri : `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(exactAmount)}&cu=INR&tn=${encodeURIComponent(paymentId)}`;
 
     const svg = generateQrSvg(upiUri, 220);
     res.writeHead(200, {

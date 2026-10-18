@@ -230,7 +230,13 @@ export class CheckoutServer {
       if (qrMatch) {
         const paymentId = qrMatch[1];
         const state = await this.fetchPaymentState(paymentId);
-        const upiUri = state?.upiUri || `upi://pay?pa=${encodeURIComponent(state?.payeeVpa || 'zayacodehub@okhdfcbank')}&pn=${encodeURIComponent(state?.merchantName || 'ZAYA CODE HUB')}&am=${encodeURIComponent(state?.amount || '100.00')}&tn=${encodeURIComponent(paymentId)}`;
+        const queryAmt = url.searchParams.get('amount');
+        const rawAmt = queryAmt || state?.amount || '100.00';
+        const numAmt = parseFloat(rawAmt.toString().replace(/[^0-9.]/g, '')) || 100.0;
+        const exactAmount = numAmt.toFixed(2);
+        const payeeVpa = url.searchParams.get('vpa') || state?.payeeVpa || 'zayacodehub@okhdfcbank';
+        const payeeName = url.searchParams.get('name') || state?.merchantName || 'ZAYA CODE HUB';
+        const upiUri = (state?.upiUri && !queryAmt) ? state.upiUri : `upi://pay?pa=${encodeURIComponent(payeeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(exactAmount)}&cu=INR&tn=${encodeURIComponent(paymentId)}`;
 
         const svg = generateQrSvg(upiUri, 220);
         res.writeHead(200, {
