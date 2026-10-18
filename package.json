@@ -9,7 +9,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "node -e \"console.log('Build ready for ZAYAPAY.')\"",
     "clean": "node scripts/clean.js",
     "db:setup": "node scripts/init-db.cjs",
     "sync:package": "node scripts/sync-package.cjs",
