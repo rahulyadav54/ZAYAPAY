@@ -88,7 +88,35 @@ if (fs.existsSync(adminSrc)) {
   fs.copyFileSync(adminSrc, path.resolve(adminDir, 'index.html'));
 }
 
-// 5. Ensure health check static fallback JSON files exist
+// 5. Copy Store Assets (Screenshots, mockups)
+const storeAssetsSrc = path.resolve(rootDir, 'apps/coin-wallet-store/public/assets');
+if (fs.existsSync(storeAssetsSrc)) {
+  const assetsDest = path.resolve(pubDir, 'assets');
+  fs.mkdirSync(assetsDest, { recursive: true });
+  fs.cpSync(storeAssetsSrc, assetsDest, { recursive: true });
+}
+
+// 6. Copy Checkout App & Card Icons
+const iconsSrc = path.resolve(rootDir, 'apps/checkout-portal/public/icons');
+if (fs.existsSync(iconsSrc)) {
+  const iconsDest = path.resolve(pubDir, 'icons');
+  const checkoutIconsDest = path.resolve(pubDir, 'checkout/icons');
+  fs.mkdirSync(iconsDest, { recursive: true });
+  fs.mkdirSync(checkoutIconsDest, { recursive: true });
+  fs.cpSync(iconsSrc, iconsDest, { recursive: true });
+  fs.cpSync(iconsSrc, checkoutIconsDest, { recursive: true });
+}
+
+// 7. Ensure QR SVG exists in root public and checkout
+const qrSrc = path.resolve(rootDir, 'public/qr.svg');
+const checkoutQrDest = path.resolve(checkoutDir, 'qr.svg');
+if (fs.existsSync(qrSrc)) {
+  fs.copyFileSync(qrSrc, checkoutQrDest);
+} else if (fs.existsSync(checkoutQrDest)) {
+  fs.copyFileSync(checkoutQrDest, path.resolve(pubDir, 'qr.svg'));
+}
+
+// 8. Ensure health check static fallback JSON files exist
 const healthPayload = JSON.stringify({ status: 'UP', app: 'ZAYAPAY', mode: 'production' }, null, 2);
 fs.writeFileSync(path.resolve(pubDir, 'health'), healthPayload, 'utf8');
 const apiDir = path.resolve(pubDir, 'api');

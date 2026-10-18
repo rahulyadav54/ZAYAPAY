@@ -195,6 +195,42 @@ export class CoinWalletStoreServer {
         }
       }
 
+      // Static assets: GET /assets/:filename
+      if (pathname.startsWith('/assets/') && (method === 'GET' || method === 'HEAD')) {
+        const assetName = path.basename(pathname);
+        const assetPath = path.join(__dirname, '..', 'public', 'assets', assetName);
+        if (fs.existsSync(assetPath)) {
+          const ext = path.extname(assetName).toLowerCase();
+          const contentType = ext === '.png' ? 'image/png' : ext === '.svg' ? 'image/svg+xml' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'application/octet-stream';
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=86400',
+            'Access-Control-Allow-Origin': '*'
+          });
+          if (method === 'HEAD') { res.end(); return; }
+          fs.createReadStream(assetPath).pipe(res);
+          return;
+        }
+      }
+
+      // Static icons: GET /icons/:filename
+      if (pathname.startsWith('/icons/') && (method === 'GET' || method === 'HEAD')) {
+        const iconName = path.basename(pathname);
+        const iconPath = path.join(__dirname, '../../checkout-portal/public/icons', iconName);
+        if (fs.existsSync(iconPath)) {
+          const ext = path.extname(iconName).toLowerCase();
+          const contentType = ext === '.png' ? 'image/png' : ext === '.svg' ? 'image/svg+xml' : 'image/jpeg';
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=86400',
+            'Access-Control-Allow-Origin': '*'
+          });
+          if (method === 'HEAD') { res.end(); return; }
+          fs.createReadStream(iconPath).pipe(res);
+          return;
+        }
+      }
+
       // GET / or /store
       if ((pathname === '/' || pathname === '/store') && (method === 'GET' || method === 'HEAD')) {
         try { this.storeHtml = fs.readFileSync(path.join(__dirname, 'store.html'), 'utf8'); } catch {}

@@ -208,8 +208,8 @@ export class CheckoutServer {
         return;
       }
 
-      // Static icons: GET /icons/:filename
-      if (pathname.startsWith('/icons/')) {
+      // Static icons: GET /icons/:filename or /checkout/icons/:filename
+      if (pathname.startsWith('/icons/') || pathname.startsWith('/checkout/icons/')) {
         const iconName = path.basename(pathname);
         const iconPath = path.join(__dirname, '..', 'public', 'icons', iconName);
         if (fs.existsSync(iconPath)) {

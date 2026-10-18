@@ -52,5 +52,6 @@ packages/*/dist/
 !packages/**
 !docs/**
 !assets/**
+!public/**
 packages/*/dist/
 packages/**/dist/
