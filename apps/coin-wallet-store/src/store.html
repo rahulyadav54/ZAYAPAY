@@ -998,7 +998,7 @@
       <!-- LEFT COLUMN: INTERACTIVE VISUAL GALLERY -->
       <div class="gallery-column" id="gallery">
         <div class="gallery-main-viewport" onclick="openLightbox()" title="Click to view full-resolution screenshot">
-          <img id="mainGalleryImg" class="gallery-main-img" src="/assets/gateway_pc_checkout.png?v=2" alt="YOUPI PG Desktop Checkout View" />
+          <img id="mainGalleryImg" class="gallery-main-img" src="/assets/gateway_pc_checkout.png?v=3" alt="ZAYAPAY Desktop Checkout View" />
           <div class="gallery-zoom-hint">
             <span>🔍</span>
             <span>Click to Enlarge</span>
@@ -1007,20 +1007,20 @@
 
         <!-- 5 High-Res Gateway Screenshots Carousel -->
         <div class="thumbnails-grid">
-          <div class="thumb-card active" onclick="switchGalleryPhoto(0, '/assets/gateway_pc_checkout.png?v=2', 'Desktop 2-Column Checkout', 'Authentic desktop 2-column checkout frame with real-time dynamic QR, clean card at counter, live order summary, and verified merchant branding.')">
-            <img src="/assets/gateway_pc_checkout.png?v=2" alt="PC Checkout" />
+          <div class="thumb-card active" onclick="switchGalleryPhoto(0, '/assets/gateway_pc_checkout.png?v=3', 'Desktop 2-Column Checkout', 'Authentic desktop 2-column checkout frame with real-time dynamic QR, clean card at counter, live order summary, and verified merchant branding.')">
+            <img src="/assets/gateway_pc_checkout.png?v=3" alt="PC Checkout" />
           </div>
-          <div class="thumb-card" onclick="switchGalleryPhoto(1, '/assets/gateway_mobile_checkout.png?v=2', 'Mobile Instant Sheet &amp; UPI Intent', 'Native fluid mobile checkout bottom sheet with instant UPI app deep-linking (GPay, PhonePe, Paytm, CRED).')">
-            <img src="/assets/gateway_mobile_checkout.png?v=2" alt="Mobile Checkout" />
+          <div class="thumb-card" onclick="switchGalleryPhoto(1, '/assets/gateway_mobile_checkout.png?v=3', 'Mobile Instant Sheet &amp; UPI Intent', 'Native fluid mobile checkout bottom sheet with instant UPI app deep-linking (GPay, PhonePe, Paytm, CRED).')">
+            <img src="/assets/gateway_mobile_checkout.png?v=3" alt="Mobile Checkout" />
           </div>
-          <div class="thumb-card" onclick="switchGalleryPhoto(2, '/assets/gateway_merchant_operations.png?v=2', 'Merchant Operations &amp; Live Slots Hub', 'Crisp bright white operations dashboard with real-time slot allocation, floating cashier till dock, and observers status.')">
-            <img src="/assets/gateway_merchant_operations.png?v=2" alt="Operations Hub" />
+          <div class="thumb-card" onclick="switchGalleryPhoto(2, '/assets/gateway_merchant_operations.png?v=3', 'Merchant Operations &amp; Live Slots Hub', 'Crisp bright white operations dashboard with real-time slot allocation, floating cashier till dock, and observers status.')">
+            <img src="/assets/gateway_merchant_operations.png?v=3" alt="Operations Hub" />
           </div>
-          <div class="thumb-card" onclick="switchGalleryPhoto(3, '/assets/gateway_developer_dark_hub.png?v=2', 'Developer Hub (Real Dark Mode)', 'Authentic obsidian real dark mode with multi-service supervisor, live host ports, and aggregate streaming terminal.')">
-            <img src="/assets/gateway_developer_dark_hub.png?v=2" alt="Developer Hub" />
+          <div class="thumb-card" onclick="switchGalleryPhoto(3, '/assets/gateway_developer_dark_hub.png?v=3', 'Developer Hub (Real Dark Mode)', 'Authentic obsidian real dark mode with multi-service supervisor, live host ports, and aggregate streaming terminal.')">
+            <img src="/assets/gateway_developer_dark_hub.png?v=3" alt="Developer Hub" />
           </div>
-          <div class="thumb-card" onclick="switchGalleryPhoto(4, '/assets/gateway_whitelabel_customizer.png?v=2', 'White-Label Customizer &amp; Mockup', 'Live smartphone reflection with instant brand logo, custom color palette, trust seals, and conversion banners.')">
-            <img src="/assets/gateway_whitelabel_customizer.png?v=2" alt="White-Label Customizer" />
+          <div class="thumb-card" onclick="switchGalleryPhoto(4, '/assets/gateway_whitelabel_customizer.png?v=3', 'White-Label Customizer &amp; Mockup', 'Live smartphone reflection with instant brand logo, custom color palette, trust seals, and conversion banners.')">
+            <img src="/assets/gateway_whitelabel_customizer.png?v=3" alt="White-Label Customizer" />
           </div>
         </div>
       </div>
@@ -1620,7 +1620,7 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
   <!-- LIGHTBOX MODAL FOR FULL-RES IMAGE INSPECTION -->
   <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
     <button type="button" class="lightbox-close-btn" onclick="closeLightbox()">✕</button>
-    <img id="lightboxImg" class="lightbox-img" src="/assets/gateway_pc_checkout.png" alt="Enlarged Gateway Photo" />
+    <img id="lightboxImg" class="lightbox-img" src="/assets/gateway_pc_checkout.png?v=3" alt="Enlarged Gateway Photo" />
   </div>
 
   <!-- PAYMENT SUCCESS CELEBRATION MODAL -->
@@ -1652,31 +1652,31 @@ app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, 
     let currentAmount = 1.00;
     const photos = [
       {
-        url: '/assets/gateway_pc_checkout.png?v=2',
+        url: '/assets/gateway_pc_checkout.png?v=3',
         badge: '💻 Desktop 2-Column Checkout',
         title: 'Desktop 2-Column Checkout',
         desc: 'Authentic desktop 2-column checkout frame with real-time dynamic QR, clean card at counter, live order summary, and verified merchant branding.'
       },
       {
-        url: '/assets/gateway_mobile_checkout.png?v=2',
+        url: '/assets/gateway_mobile_checkout.png?v=3',
         badge: '📱 Mobile Instant Sheet & UPI Intent',
         title: 'Mobile Instant Sheet & UPI Intent',
         desc: 'Native fluid mobile checkout bottom sheet with instant UPI app deep-linking (GPay, PhonePe, Paytm, CRED).'
       },
       {
-        url: '/assets/gateway_merchant_operations.png?v=2',
+        url: '/assets/gateway_merchant_operations.png?v=3',
         badge: '📊 Merchant Operations & Live Slots Hub',
         title: 'Merchant Operations & Live Slots Hub',
         desc: 'Crisp bright white operations dashboard with real-time slot allocation, floating cashier till dock, and observers status.'
       },
       {
-        url: '/assets/gateway_developer_dark_hub.png?v=2',
+        url: '/assets/gateway_developer_dark_hub.png?v=3',
         badge: '🌙 Developer Hub (Real Dark Mode)',
         title: 'Developer Hub (Real Dark Mode)',
         desc: 'Authentic obsidian real dark mode with multi-service supervisor, live host ports, and aggregate streaming terminal.'
       },
       {
-        url: '/assets/gateway_whitelabel_customizer.png?v=2',
+        url: '/assets/gateway_whitelabel_customizer.png?v=3',
         badge: '🎨 White-Label Customizer & Mockup',
         title: 'White-Label Customizer & Mockup',
         desc: 'Live smartphone reflection with instant brand logo, custom color palette, trust seals, and conversion banners.'
