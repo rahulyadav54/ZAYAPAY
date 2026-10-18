@@ -37,6 +37,7 @@ Thumbs.db
 .system_generated/
 *.tmp
 *.temp
+*.tsbuildinfo
 
 # Root Testing Screenshots
 *.png
