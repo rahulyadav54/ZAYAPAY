@@ -52,6 +52,121 @@ export class GmailObserverServer {
         return;
       }
 
+      // GET /
+      if (pathname === '/') {
+        let clientId = '';
+        const apiBase = (this.poller.apiBaseUrl && !this.poller.apiBaseUrl.includes('gauravtesting.online')) ? this.poller.apiBaseUrl : `http://127.0.0.1:${process.env.PAYMENT_API_PORT || 6100}`;
+        try {
+          const credRes = await fetch(`${apiBase}/api/v1/admin/gmail/credentials`);
+          if (credRes.ok) {
+            const credData = await credRes.json();
+            clientId = credData.clientId || credData.gmailConfig?.clientId || '';
+          }
+        } catch {}
+        if (!clientId) {
+          clientId = (this.poller.credentials?.clientId)
+            ? this.poller.credentials.clientId
+            : (process.env.GMAIL_CLIENT_ID || '');
+        }
+
+        const finalRedirectUri = process.env.GMAIL_REDIRECT_URI || `${url.protocol}//${req.headers.host || 'localhost:6003'}/oauth/callback`;
+        const scope = encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email');
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(finalRedirectUri)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent&include_granted_scopes=true`;
+        const isConnected = Boolean(this.poller.credentials?.refreshToken || this.poller.credentials?.accessToken);
+
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ZAYAPAY — Gmail Bank Observer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #090d16;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 1.25rem;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+    .badge-disconnected {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #f87171;
+    }
+    .badge-connected {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #34d399;
+    }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem 0; color: #fff; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin: 0 0 1.5rem 0; }
+    .btn-google {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #ffffff;
+      color: #1f2937;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      width: 100%;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+    .btn-google:hover { background: #f1f5f9; transform: translateY(-1px); }
+    .info { margin-top: 1.5rem; font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge ${isConnected ? 'badge-connected' : 'badge-disconnected'}">
+      <span>●</span> ${isConnected ? 'Observer Connected: ' + (this.poller.credentials.connectedEmail || 'Active') : 'Observer Not Connected'}
+    </div>
+    <h1>⚡ ZAYAPAY Gmail Observer</h1>
+    <p>Read incoming HDFC Bank UPI credit alert emails to confirm customer payments in real-time.</p>
+    <a href="${authUrl}" class="btn-google">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.04 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+      ${isConnected ? 'Re-authorize Google Account' : 'Sign in with Google'}
+    </a>
+    <div class="info">
+      Redirect URI: <code>${finalRedirectUri}</code><br>
+      Polling Interval: 5 seconds
+    </div>
+  </div>
+</body>
+</html>`);
+        return;
+      }
+
       // GET /oauth/url
       if (pathname === '/oauth/url') {
         let clientId = '';
